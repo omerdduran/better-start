@@ -1,0 +1,196 @@
+:root {
+  --border-radius: 1rem;
+  --color-background: #111;
+  --color-text-subtle: #888;
+  --color-text: #ddd;
+  --font-family: -apple-system, Helvetica, sans-serif;
+  --font-size: clamp(16px, 1.3vw, 18px);
+  --font-weight-bold: 700;
+  --font-weight-normal: 400;
+  --space: 1rem;
+  --transition-speed: 200ms;
+  --color-accent: #4a9eff;
+  --color-error: #ff4a4a;
+  --color-success: #4aff4a;
+  --color-overlay: rgba(0, 0, 0, 0.5);
+  --elevation-1: 0 2px 4px rgba(0, 0, 0, 0.1);
+  --elevation-2: 0 4px 8px rgba(0, 0, 0, 0.2);
+  --animation-duration: 300ms;
+  --light-background: #e8e8e8;
+  --light-text: #111;
+  --light-text-subtle: #606060;
+  --light-overlay: rgba(255, 255, 255, 0.5);
+  --dark-background: #111;
+  --dark-text: #ddd;
+  --dark-text-subtle: #888;
+  --dark-overlay: rgba(0, 0, 0, 0.5);
+}
+
+@media (prefers-color-scheme: light) {
+  :root:not([data-theme="dark"]) {
+    --color-background: var(--light-background);
+    --color-text: var(--light-text);
+    --color-text-subtle: var(--light-text-subtle);
+    --color-overlay: var(--light-overlay);
+  }
+}
+
+:root[data-theme="light"] {
+  --color-background: var(--light-background);
+  --color-text: var(--light-text);
+  --color-text-subtle: var(--light-text-subtle);
+  --color-overlay: var(--light-overlay);
+}
+
+:root[data-theme="dark"] {
+  --color-background: var(--dark-background);
+  --color-text: var(--dark-text);
+  --color-text-subtle: var(--dark-text-subtle);
+  --color-overlay: var(--dark-overlay);
+}
+
+html {
+  background-color: var(--color-background);
+  font-family: var(--font-family);
+  font-size: var(--font-size);
+  line-height: 1.4;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  font-family: system-ui, sans-serif;
+  color: var(--color-text);
+  transition: background-color var(--transition-speed),
+              background-image var(--transition-speed),
+              backdrop-filter var(--transition-speed),
+              opacity var(--transition-speed);
+  position: relative;
+}
+
+main {
+  align-items: center;
+  box-sizing: border-box;
+  display: flex;
+  justify-content: center;
+  min-height: 100dvh;
+  overflow: hidden;
+  padding: calc(var(--space) * 4) var(--space);
+  position: relative;
+  width: 100vw;
+  position: relative;
+  z-index: 1;
+}
+
+.settings-toggle {
+  position: fixed;
+  bottom: var(--space);
+  right: var(--space);
+  z-index: 100;
+}
+
+.settings-toggle button {
+  background: transparent;
+  border: none;
+  border-radius: 50%;
+  cursor: pointer;
+  font-size: 1.5rem;
+  height: 3rem;
+  opacity: 0.5;
+  padding: 0;
+  transition: all var(--transition-speed);
+  width: 3rem;
+  color: var(--color-text);
+  background: var(--color-background);
+  box-shadow: var(--elevation-1);
+}
+
+.settings-toggle button:hover {
+  opacity: 1;
+  transform: rotate(90deg);
+  box-shadow: var(--elevation-2);
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes slideUp {
+  from {
+    transform: translateY(10px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+.settings-panel {
+  animation: slideUp var(--animation-duration) ease-out;
+  background: var(--color-background);
+  border-radius: var(--border-radius);
+  box-shadow: var(--elevation-2);
+  display: none;
+  max-height: 80vh;
+  overflow-y: auto;
+  padding: var(--space);
+  position: fixed;
+  right: var(--space);
+  bottom: calc(var(--space) * 4);
+  width: min(90vw, 400px);
+  z-index: 99;
+}
+
+.settings-panel.open {
+  display: block;
+}
+
+.settings-panel h2 {
+  color: var(--color-text);
+  margin-top: 0;
+}
+
+.settings-section {
+  border-bottom: 1px solid var(--color-text-subtle);
+  margin-bottom: var(--space);
+  padding-bottom: var(--space);
+}
+
+.settings-section:last-child {
+  border-bottom: none;
+  margin-bottom: 0;
+  padding-bottom: 0;
+}
+
+.form-group {
+  margin-bottom: var(--space);
+}
+
+.form-group label {
+  color: var(--color-text);
+  display: block;
+  margin-bottom: calc(var(--space) / 2);
+}
+
+.form-group input,
+.form-group select {
+  background: transparent;
+  border: 1px solid var(--color-text-subtle);
+  border-radius: calc(var(--border-radius) / 2);
+  color: var(--color-text);
+  padding: calc(var(--space) / 2);
+  width: 100%;
+}
+
+.form-group input:focus,
+.form-group select:focus {
+  border-color: var(--color-accent);
+  outline: none;
+}
+ 

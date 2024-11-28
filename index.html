@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="color-scheme" content="dark light" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="description" content="A customizable startpage for quick navigation" />
+    <title>New Tab</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <script src="config.js"></script>
+    <script src="components/commands.js"></script>
+    <script src="components/search.js"></script>
+    <script src="components/settings.js"></script>
+    <script src="components/weather.js"></script>
+    <script src="components/clock.js"></script>
+    <script src="components/notes.js"></script>
+    <script src="components/todo.js"></script>
+    <script src="components/rss.js"></script>
+    <script src="components/calendar.js"></script>
+    <main>
+        <weather-widget></weather-widget>
+        <clock-widget></clock-widget>
+        <commands-component></commands-component>
+        <search-component></search-component>
+        <settings-panel></settings-panel>
+        <notes-widget></notes-widget>
+        <todo-widget></todo-widget>
+        <rss-widget></rss-widget>
+        <calendar-widget></calendar-widget>
+    </main>
+    <footer class="settings-toggle">
+        <button id="settingsButton" aria-label="Settings">⚙️</button>
+    </footer>
+    <script src="app.js"></script>
+</body>
+</html> 

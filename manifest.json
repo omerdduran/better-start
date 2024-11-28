@@ -1,0 +1,22 @@
+{
+  "manifest_version": 3,
+  "name": "Better Startpage",
+  "version": "1.0",
+  "description": "A customizable startpage for quick navigation and search",
+  "author": "Ömer Duran",
+  "chrome_url_overrides": {
+    "newtab": "index.html"
+  },
+  
+  "permissions": [
+    "storage",
+    "bookmarks",
+    "favicon"
+  ],
+  "host_permissions": [
+    "chrome://favicon/*"
+  ],
+  "content_security_policy": {
+    "extension_pages": "script-src 'self'; object-src 'self'; img-src 'self' data: chrome://favicon/"
+  }
+} 
