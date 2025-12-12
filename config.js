@@ -45,11 +45,7 @@ const CONFIG = {
     commandsShowKeys: true,
     commandsShowNames: true,
 
-    // Bookmarks settings
-    bookmarksEnabled: true,
-    bookmarksPosition: 'top', // 'top' or 'bottom'
-    bookmarksLimit: 10,
-    bookmarksShowFavicons: true,
+
 
     // Search history settings
     searchHistoryEnabled: true,
@@ -61,7 +57,6 @@ const CONFIG = {
     shortcuts: {
       'Ctrl+/': 'toggleSearch',
       'Ctrl+,': 'toggleSettings',
-      'Ctrl+b': 'toggleBookmarks',
       'Esc': 'closeAll'
     }
   }

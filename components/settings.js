@@ -364,34 +364,7 @@ class SettingsPanel extends HTMLElement {
           </div>
         </div>
 
-        <div class="settings-section">
-          <h3>Bookmarks</h3>
-          <div class="settings-grid">
-            <div class="form-group">
-              <label>
-                <input type="checkbox" id="bookmarksEnabled">
-                Show bookmarks bar
-              </label>
-            </div>
-            <div class="form-group">
-              <label for="bookmarksPosition">Position</label>
-              <select id="bookmarksPosition">
-                <option value="top">Top</option>
-                <option value="bottom">Bottom</option>
-              </select>
-            </div>
-            <div class="form-group">
-              <label for="bookmarksLimit">Number of bookmarks</label>
-              <input type="number" id="bookmarksLimit" min="1" max="20">
-            </div>
-            <div class="form-group">
-              <label>
-                <input type="checkbox" id="bookmarksShowFavicons">
-                Show favicons
-              </label>
-            </div>
-          </div>
-        </div>
+
 
         <div class="settings-section">
           <h3>Data</h3>
@@ -425,11 +398,7 @@ class SettingsPanel extends HTMLElement {
       clockShowDate: CONFIG.defaultSettings.clockShowDate,
       commandsColumns: CONFIG.defaultSettings.commandsColumns,
       commandsShowKeys: CONFIG.defaultSettings.commandsShowKeys,
-      commandsShowNames: CONFIG.defaultSettings.commandsShowNames,
-      bookmarksEnabled: CONFIG.defaultSettings.bookmarksEnabled,
-      bookmarksPosition: CONFIG.defaultSettings.bookmarksPosition,
-      bookmarksLimit: CONFIG.defaultSettings.bookmarksLimit,
-      bookmarksShowFavicons: CONFIG.defaultSettings.bookmarksShowFavicons
+      commandsShowNames: CONFIG.defaultSettings.commandsShowNames
     });
 
     // Get all setting elements
@@ -456,12 +425,6 @@ class SettingsPanel extends HTMLElement {
       commandsColumns: this.shadowRoot.getElementById('commandsColumns'),
       commandsShowKeys: this.shadowRoot.getElementById('commandsShowKeys'),
       commandsShowNames: this.shadowRoot.getElementById('commandsShowNames'),
-
-      // Bookmarks settings
-      bookmarksEnabled: this.shadowRoot.getElementById('bookmarksEnabled'),
-      bookmarksPosition: this.shadowRoot.getElementById('bookmarksPosition'),
-      bookmarksLimit: this.shadowRoot.getElementById('bookmarksLimit'),
-      bookmarksShowFavicons: this.shadowRoot.getElementById('bookmarksShowFavicons'),
 
       // Data management
       exportBtn: this.shadowRoot.getElementById('exportData'),
@@ -517,12 +480,6 @@ class SettingsPanel extends HTMLElement {
       commandsColumns: this.shadowRoot.getElementById('commandsColumns'),
       commandsShowKeys: this.shadowRoot.getElementById('commandsShowKeys'),
       commandsShowNames: this.shadowRoot.getElementById('commandsShowNames'),
-
-      // Bookmarks settings
-      bookmarksEnabled: this.shadowRoot.getElementById('bookmarksEnabled'),
-      bookmarksPosition: this.shadowRoot.getElementById('bookmarksPosition'),
-      bookmarksLimit: this.shadowRoot.getElementById('bookmarksLimit'),
-      bookmarksShowFavicons: this.shadowRoot.getElementById('bookmarksShowFavicons'),
 
       // Data management
       exportBtn: this.shadowRoot.getElementById('exportData'),

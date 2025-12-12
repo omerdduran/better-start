@@ -8,8 +8,7 @@
     "newtab": "index.html"
   },
   "permissions": [
-    "storage",
-    "bookmarks"
+    "storage"
   ],
   "background": {
     "scripts": [
