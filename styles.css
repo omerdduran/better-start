@@ -101,14 +101,11 @@ main {
   transition: all var(--transition-speed);
   width: 3rem;
   color: var(--color-text);
-  background: var(--color-background);
-  box-shadow: var(--elevation-1);
 }
 
 .settings-toggle button:hover {
   opacity: 1;
   transform: rotate(90deg);
-  box-shadow: var(--elevation-2);
 }
 
 @keyframes fadeIn {

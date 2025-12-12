@@ -29,12 +29,18 @@ class SettingsPanel extends HTMLElement {
           display: none;
           max-height: 80vh;
           overflow-y: auto;
+          scrollbar-width: none;
+          -ms-overflow-style: none;
           padding: var(--space);
           position: fixed;
           right: var(--space);
           bottom: calc(var(--space) * 4);
           width: min(90vw, 400px);
           z-index: 99;
+        }
+
+        .settings-panel::-webkit-scrollbar {
+          display: none;
         }
 
         .settings-panel.open {
