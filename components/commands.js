@@ -65,24 +65,6 @@ commandsTemplate.innerHTML = `
       }
     }
 
-    .remove-command {
-      background: transparent;
-      border: none;
-      color: var(--color-error);
-      cursor: pointer;
-      font-size: 1.2em;
-      opacity: 0;
-      padding: 0;
-      position: absolute;
-      right: var(--space);
-      top: 50%;
-      transform: translateY(-50%);
-      transition: opacity var(--transition-speed);
-    }
-
-    .command:hover .remove-command {
-      opacity: 1;
-    }
   </style>
   <nav>
     <menu class="commands"></menu>
@@ -119,18 +101,18 @@ class Commands extends HTMLElement {
     this.#commands = new Map(
       Array.from(COMMANDS).filter(([key]) => !deletedCommands.includes(key))
     );
-    
+
     // Add custom commands
     const { customCommands = {} } = await browser.storage.sync.get('customCommands');
     for (const [key, command] of Object.entries(customCommands)) {
       this.#commands.set(key, command);
     }
-    
+
     // Load settings
-    const { commandsColumns = CONFIG.defaultSettings.commandsColumns } = 
+    const { commandsColumns = CONFIG.defaultSettings.commandsColumns } =
       await browser.storage.sync.get('commandsColumns');
     this.#settings.columns = commandsColumns;
-    
+
     this.render();
   }
 
@@ -153,23 +135,7 @@ class Commands extends HTMLElement {
       if (CONFIG.openLinksInNewTab) command.target = '_blank';
       clone.querySelector('.key').innerText = key;
       clone.querySelector('.name').innerText = name;
-      // Add delete button for built-in commands
-      if (COMMANDS.has(key)) {
-        const deleteBtn = document.createElement('button');
-        deleteBtn.textContent = '×';
-        deleteBtn.className = 'remove-command';
-        deleteBtn.addEventListener('click', async (e) => {
-          e.preventDefault();
-          if (confirm(`Are you sure you want to delete the "${name}" command?`)) {
-            const { deletedCommands = [] } = await browser.storage.sync.get('deletedCommands');
-            await browser.storage.sync.set({ 
-              deletedCommands: [...deletedCommands, key] 
-            });
-            this.loadCommands();
-          }
-        });
-        command.appendChild(deleteBtn);
-      }
+
       commands.append(clone);
     }
 
