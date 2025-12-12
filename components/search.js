@@ -146,12 +146,12 @@ class Search extends HTMLElement {
   }
 
   async loadSearchEngine() {
-    const { 
+    const {
       defaultSearch = 'duckduckgo',
       customSearchEngines = {},
       customCommands = {}
     } = await browser.storage.sync.get(['defaultSearch', 'customSearchEngines', 'customCommands']);
-    
+
     if (customSearchEngines[defaultSearch]) {
       this.#searchEngine = customSearchEngines[defaultSearch];
     } else {
@@ -295,9 +295,15 @@ class Search extends HTMLElement {
   };
 
   #onKeydown = (e) => {
-    if (e.target.tagName === 'INPUT' || 
-        e.target.tagName === 'TEXTAREA' || 
-        e.target.closest('.settings-panel')) {
+    // Check if event originates from an input (including shadow DOM)
+    const path = e.composedPath();
+    const isFromInput = path.some(el =>
+      el.tagName === 'INPUT' ||
+      el.tagName === 'TEXTAREA' ||
+      el.tagName === 'SELECT'
+    );
+
+    if (isFromInput) {
       return;
     }
 

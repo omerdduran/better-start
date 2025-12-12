@@ -378,6 +378,11 @@ class SettingsPanel extends HTMLElement {
         <div class="section">
           <h3 class="section-title">Links</h3>
           
+          <div class="option">
+            <span class="option-label">Grid Columns</span>
+            <input type="number" id="commandsColumns" min="1" max="12" style="width: 60px; text-align: center;">
+          </div>
+          
           <div class="commands-list" id="commandsList"></div>
 
           <form class="add-form" id="addCommandForm">
@@ -423,7 +428,8 @@ class SettingsPanel extends HTMLElement {
       weatherF: CONFIG.defaultSettings.weatherF,
       clockEnabled: CONFIG.defaultSettings.clockEnabled,
       clock24h: CONFIG.defaultSettings.clock24h,
-      clockShowDate: CONFIG.defaultSettings.clockShowDate
+      clockShowDate: CONFIG.defaultSettings.clockShowDate,
+      commandsColumns: CONFIG.defaultSettings.commandsColumns
     });
 
     const elements = {
@@ -435,7 +441,8 @@ class SettingsPanel extends HTMLElement {
       weatherF: this.shadowRoot.getElementById('weatherF'),
       clockEnabled: this.shadowRoot.getElementById('clockEnabled'),
       clock24h: this.shadowRoot.getElementById('clock24h'),
-      clockShowDate: this.shadowRoot.getElementById('clockShowDate')
+      clockShowDate: this.shadowRoot.getElementById('clockShowDate'),
+      commandsColumns: this.shadowRoot.getElementById('commandsColumns')
     };
 
     Object.entries(elements).forEach(([key, element]) => {
@@ -461,7 +468,8 @@ class SettingsPanel extends HTMLElement {
       weatherF: this.shadowRoot.getElementById('weatherF'),
       clockEnabled: this.shadowRoot.getElementById('clockEnabled'),
       clock24h: this.shadowRoot.getElementById('clock24h'),
-      clockShowDate: this.shadowRoot.getElementById('clockShowDate')
+      clockShowDate: this.shadowRoot.getElementById('clockShowDate'),
+      commandsColumns: this.shadowRoot.getElementById('commandsColumns')
     };
 
     elements.theme?.addEventListener('change', (e) => {

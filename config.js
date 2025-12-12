@@ -30,7 +30,8 @@ const CONFIG = {
     weatherF: false,
     clockEnabled: true,
     clock24h: false,
-    clockShowDate: true
+    clockShowDate: true,
+    commandsColumns: 3
   }
 };
 

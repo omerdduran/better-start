@@ -7,10 +7,9 @@ commandsTemplate.innerHTML = `
       columns: 3;
       list-style: none;
       margin: 0 auto;
-      max-width: 23rem;
       overflow: hidden;
       padding: 0;
-      width: 100vw;
+      width: 100%;
     }
 
     .command {
@@ -51,20 +50,6 @@ commandsTemplate.innerHTML = `
       color: var(--color-text);
     }
 
-    @media (min-width: 40rem) {
-      .commands {
-        columns: 4;
-        max-width: 30rem;
-      }
-    }
-
-    @media (min-width: 70rem) {
-      .commands {
-        columns: 6;
-        max-width: 60rem;
-      }
-    }
-
   </style>
   <nav>
     <menu class="commands"></menu>
@@ -83,6 +68,7 @@ commandTemplate.innerHTML = `
 
 class Commands extends HTMLElement {
   #commands = new Map();
+  #columns = 'auto';
 
   constructor() {
     super();
@@ -105,12 +91,19 @@ class Commands extends HTMLElement {
       this.#commands.set(key, command);
     }
 
+    // Load columns setting
+    const { commandsColumns = 3 } = await browser.storage.sync.get('commandsColumns');
+    this.#columns = commandsColumns;
+
     this.render();
   }
 
   render() {
     const clone = commandsTemplate.content.cloneNode(true);
     const commands = clone.querySelector('.commands');
+
+    // Apply columns setting
+    commands.style.columns = this.#columns;
 
     for (const [key, { name, url }] of this.#commands.entries()) {
       if (!name || !url) continue;
@@ -129,7 +122,7 @@ class Commands extends HTMLElement {
   }
 
   #onStorageChange = (changes) => {
-    if (changes.customCommands || changes.deletedCommands) {
+    if (changes.customCommands || changes.deletedCommands || changes.commandsColumns) {
       this.loadCommands();
     }
   };
