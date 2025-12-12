@@ -1,4 +1,7 @@
-chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
+// Cross-browser API compatibility
+const browserAPI = typeof browser !== 'undefined' ? browser : chrome;
+
+browserAPI.runtime.onMessage.addListener((request, sender, sendResponse) => {
   if (request.type === 'fetchSuggestions') {
     fetch(request.url)
       .then(response => response.json())

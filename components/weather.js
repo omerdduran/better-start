@@ -10,7 +10,7 @@ class WeatherWidget extends HTMLElement {
     this.attachShadow({ mode: 'open' });
     this.render();
     this.loadSettings();
-    chrome.storage.onChanged.addListener(this.#onStorageChange);
+    browser.storage.onChanged.addListener(this.#onStorageChange);
   }
 
   render() {
@@ -57,7 +57,7 @@ class WeatherWidget extends HTMLElement {
   }
 
   async loadSettings() {
-    const settings = await chrome.storage.sync.get({
+    const settings = await browser.storage.sync.get({
       weatherEnabled: true,
       weatherLocation: '',
       weatherF: false

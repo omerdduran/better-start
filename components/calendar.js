@@ -12,11 +12,11 @@ class CalendarWidget extends HTMLElement {
     super();
     this.attachShadow({ mode: 'open' });
     this.loadSettings();
-    chrome.storage.onChanged.addListener(this.#onStorageChange);
+    browser.storage.onChanged.addListener(this.#onStorageChange);
   }
 
   async loadSettings() {
-    const settings = await chrome.storage.sync.get({
+    const settings = await browser.storage.sync.get({
       calendarEnabled: CONFIG.defaultSettings.calendarEnabled,
       calendarPosition: CONFIG.defaultSettings.calendarPosition,
       calendarView: CONFIG.defaultSettings.calendarView,

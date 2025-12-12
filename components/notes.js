@@ -18,7 +18,7 @@ class NotesWidget extends HTMLElement {
         this.loadNotes();
         this.#initialized = true;
       });
-      chrome.storage.onChanged.addListener(this.#onStorageChange);
+      browser.storage.onChanged.addListener(this.#onStorageChange);
     }
   }
 
@@ -84,7 +84,7 @@ class NotesWidget extends HTMLElement {
   }
 
   async loadSettings() {
-    const settings = await chrome.storage.sync.get({
+    const settings = await browser.storage.sync.get({
       notesEnabled: CONFIG.defaultSettings.notesEnabled,
       notesPosition: CONFIG.defaultSettings.notesPosition,
       notesExpanded: CONFIG.defaultSettings.notesExpanded
@@ -117,14 +117,14 @@ class NotesWidget extends HTMLElement {
   }
 
   async loadNotes() {
-    const { notes = '' } = await chrome.storage.sync.get('notes');
+    const { notes = '' } = await browser.storage.sync.get('notes');
     const textarea = this.shadowRoot.querySelector('textarea');
     if (textarea) {
       textarea.value = notes;
       
       // Save notes on input
       textarea.addEventListener('input', () => {
-        chrome.storage.sync.set({ notes: textarea.value });
+        browser.storage.sync.set({ notes: textarea.value });
       });
     }
 
@@ -133,7 +133,7 @@ class NotesWidget extends HTMLElement {
     if (minimize) {
       minimize.addEventListener('click', () => {
         this.#settings.expanded = !this.#settings.expanded;
-        chrome.storage.sync.set({ notesExpanded: this.#settings.expanded });
+        browser.storage.sync.set({ notesExpanded: this.#settings.expanded });
         this.updateDisplay();
       });
     }

@@ -2,11 +2,11 @@ class BackgroundManager extends HTMLElement {
   constructor() {
     super();
     this.loadSettings();
-    chrome.storage.onChanged.addListener(this.#onStorageChange);
+    browser.storage.onChanged.addListener(this.#onStorageChange);
   }
 
   async loadSettings() {
-    const { background = CONFIG.defaultSettings.background } = await chrome.storage.sync.get('background');
+    const { background = CONFIG.defaultSettings.background } = await browser.storage.sync.get('background');
     this.applyBackground(background);
   }
 

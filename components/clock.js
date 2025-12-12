@@ -18,7 +18,7 @@ class ClockWidget extends HTMLElement {
       this.loadSettings().then(() => {
         this.#initialized = true;
       });
-      chrome.storage.onChanged.addListener(this.#onStorageChange);
+      browser.storage.onChanged.addListener(this.#onStorageChange);
     }
   }
 
@@ -59,7 +59,7 @@ class ClockWidget extends HTMLElement {
   async loadSettings() {
     await new Promise(resolve => requestAnimationFrame(resolve));
 
-    const settings = await chrome.storage.sync.get({
+    const settings = await browser.storage.sync.get({
       clockEnabled: CONFIG.defaultSettings.clockEnabled,
       clock24h: CONFIG.defaultSettings.clock24h,
       clockShowDate: CONFIG.defaultSettings.clockShowDate

@@ -540,7 +540,7 @@ class SettingsPanel extends HTMLElement {
     await new Promise(resolve => requestAnimationFrame(resolve));
 
     // Load all settings with defaults from CONFIG
-    const settings = await chrome.storage.sync.get({
+    const settings = await browser.storage.sync.get({
       theme: CONFIG.defaultSettings.theme,
       layout: CONFIG.defaultSettings.layout,
       defaultSearch: CONFIG.defaultSettings.defaultSearch,
@@ -669,7 +669,7 @@ class SettingsPanel extends HTMLElement {
     this.renderRssFeeds(settings.rssFeeds || []);
 
     // Render deleted commands
-    const { deletedCommands = [] } = await chrome.storage.sync.get('deletedCommands');
+    const { deletedCommands = [] } = await browser.storage.sync.get('deletedCommands');
     this.renderDeletedCommands(deletedCommands);
     this.renderBuiltinCommands();
 
@@ -763,7 +763,7 @@ class SettingsPanel extends HTMLElement {
       element.addEventListener('change', (e) => {
         const value = e.target.type === 'checkbox' ? e.target.checked : e.target.value;
         console.log(`Setting ${key} to:`, value); // Debug log
-        chrome.storage.sync.set({ [key]: value });
+        browser.storage.sync.set({ [key]: value });
       });
     });
 
@@ -777,10 +777,10 @@ class SettingsPanel extends HTMLElement {
       const category = prompt('Enter category name:');
       if (!category) return;
 
-      const { todoCategories = [] } = await chrome.storage.sync.get('todoCategories');
+      const { todoCategories = [] } = await browser.storage.sync.get('todoCategories');
       if (!todoCategories.includes(category)) {
         todoCategories.push(category);
-        await chrome.storage.sync.set({ todoCategories });
+        await browser.storage.sync.set({ todoCategories });
         this.renderTodoCategories(todoCategories);
       }
     });
@@ -793,16 +793,16 @@ class SettingsPanel extends HTMLElement {
       const url = prompt('Enter feed URL:');
       if (!url) return;
 
-      const { rssFeeds = [] } = await chrome.storage.sync.get('rssFeeds');
+      const { rssFeeds = [] } = await browser.storage.sync.get('rssFeeds');
       rssFeeds.push({ name, url });
-      await chrome.storage.sync.set({ rssFeeds });
+      await browser.storage.sync.set({ rssFeeds });
       this.renderRssFeeds(rssFeeds);
     });
   }
 
   setTheme(theme) {
     this.applyTheme(theme);
-    chrome.storage.sync.set({ theme });
+    browser.storage.sync.set({ theme });
   }
 
   applyTheme(theme) {
@@ -815,7 +815,7 @@ class SettingsPanel extends HTMLElement {
 
   setLayout(layout) {
     this.applyLayout(layout);
-    chrome.storage.sync.set({ layout });
+    browser.storage.sync.set({ layout });
   }
 
   applyLayout(layout) {
@@ -825,7 +825,7 @@ class SettingsPanel extends HTMLElement {
   }
 
   async exportSettings() {
-    const settings = await chrome.storage.sync.get();
+    const settings = await browser.storage.sync.get();
     const blob = new Blob([JSON.stringify(settings, null, 2)], { type: 'application/json' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
@@ -844,7 +844,7 @@ class SettingsPanel extends HTMLElement {
         const file = e.target.files[0];
         const text = await file.text();
         const settings = JSON.parse(text);
-        await chrome.storage.sync.set(settings);
+        await browser.storage.sync.set(settings);
         this.loadSettings(); // Reload settings without page refresh
       } catch (error) {
         console.error('Failed to import settings:', error);
@@ -856,7 +856,7 @@ class SettingsPanel extends HTMLElement {
 
   async resetSettings() {
     if (confirm('Are you sure you want to reset all settings?')) {
-      await chrome.storage.sync.set(CONFIG.defaultSettings);
+      await browser.storage.sync.set(CONFIG.defaultSettings);
       this.loadSettings();
     }
   }
@@ -879,7 +879,7 @@ class SettingsPanel extends HTMLElement {
     // Wait for DOM to be ready
     await new Promise(resolve => requestAnimationFrame(resolve));
     
-    const { customSearchEngines = {} } = await chrome.storage.sync.get('customSearchEngines');
+    const { customSearchEngines = {} } = await browser.storage.sync.get('customSearchEngines');
     this.renderCustomSearchEngines(customSearchEngines);
 
     // Add search engine form
@@ -889,7 +889,7 @@ class SettingsPanel extends HTMLElement {
       const name = this.shadowRoot.getElementById('searchName').value;
       const url = this.shadowRoot.getElementById('searchUrl').value;
 
-      const { customSearchEngines = {} } = await chrome.storage.sync.get('customSearchEngines');
+      const { customSearchEngines = {} } = await browser.storage.sync.get('customSearchEngines');
       const key = name.toLowerCase().replace(/\s+/g, '-');
 
       customSearchEngines[key] = {
@@ -897,7 +897,7 @@ class SettingsPanel extends HTMLElement {
         template: url,
       };
 
-      await chrome.storage.sync.set({ customSearchEngines });
+      await browser.storage.sync.set({ customSearchEngines });
       this.renderCustomSearchEngines(customSearchEngines);
       form.reset();
     });
@@ -930,9 +930,9 @@ class SettingsPanel extends HTMLElement {
     list.querySelectorAll('button').forEach(btn => {
       btn.addEventListener('click', async () => {
         const key = btn.dataset.key;
-        const { customSearchEngines = {} } = await chrome.storage.sync.get('customSearchEngines');
+        const { customSearchEngines = {} } = await browser.storage.sync.get('customSearchEngines');
         delete customSearchEngines[key];
-        await chrome.storage.sync.set({ customSearchEngines });
+        await browser.storage.sync.set({ customSearchEngines });
         this.renderCustomSearchEngines(customSearchEngines);
       });
     });
@@ -942,7 +942,7 @@ class SettingsPanel extends HTMLElement {
     // Wait for DOM to be ready
     await new Promise(resolve => requestAnimationFrame(resolve));
     
-    const { customCommands = {} } = await chrome.storage.sync.get('customCommands');
+    const { customCommands = {} } = await browser.storage.sync.get('customCommands');
     this.renderCustomCommands(customCommands);
 
     // Add command form
@@ -954,7 +954,7 @@ class SettingsPanel extends HTMLElement {
       const url = this.shadowRoot.getElementById('commandUrl').value;
       const searchTemplate = this.shadowRoot.getElementById('commandSearchTemplate').value;
 
-      const { customCommands = {} } = await chrome.storage.sync.get('customCommands');
+      const { customCommands = {} } = await browser.storage.sync.get('customCommands');
 
       // Check if key already exists in built-in commands
       if (COMMANDS.has(key)) {
@@ -968,7 +968,7 @@ class SettingsPanel extends HTMLElement {
         ...(searchTemplate && { searchTemplate })
       };
 
-      await chrome.storage.sync.set({ customCommands });
+      await browser.storage.sync.set({ customCommands });
       this.renderCustomCommands(customCommands);
       form.reset();
     });
@@ -994,9 +994,9 @@ class SettingsPanel extends HTMLElement {
     list.querySelectorAll('button').forEach(btn => {
       btn.addEventListener('click', async () => {
         const key = btn.dataset.key;
-        const { customCommands = {} } = await chrome.storage.sync.get('customCommands');
+        const { customCommands = {} } = await browser.storage.sync.get('customCommands');
         delete customCommands[key];
-        await chrome.storage.sync.set({ customCommands });
+        await browser.storage.sync.set({ customCommands });
         this.renderCustomCommands(customCommands);
       });
     });
@@ -1014,9 +1014,9 @@ class SettingsPanel extends HTMLElement {
     container.querySelectorAll('button').forEach(btn => {
       btn.addEventListener('click', async () => {
         const category = btn.dataset.category;
-        const { todoCategories = [] } = await chrome.storage.sync.get('todoCategories');
+        const { todoCategories = [] } = await browser.storage.sync.get('todoCategories');
         const newCategories = todoCategories.filter(c => c !== category);
-        await chrome.storage.sync.set({ todoCategories: newCategories });
+        await browser.storage.sync.set({ todoCategories: newCategories });
         this.renderTodoCategories(newCategories);
       });
     });
@@ -1040,9 +1040,9 @@ class SettingsPanel extends HTMLElement {
     list.querySelectorAll('button').forEach(btn => {
       btn.addEventListener('click', async () => {
         const url = btn.dataset.url;
-        const { rssFeeds = [] } = await chrome.storage.sync.get('rssFeeds');
+        const { rssFeeds = [] } = await browser.storage.sync.get('rssFeeds');
         const newFeeds = rssFeeds.filter(f => f.url !== url);
-        await chrome.storage.sync.set({ rssFeeds: newFeeds });
+        await browser.storage.sync.set({ rssFeeds: newFeeds });
         this.renderRssFeeds(newFeeds);
       });
     });
@@ -1065,10 +1065,10 @@ class SettingsPanel extends HTMLElement {
       
       if (!name || !url) return;
 
-      const { rssFeeds = [] } = await chrome.storage.sync.get('rssFeeds');
+      const { rssFeeds = [] } = await browser.storage.sync.get('rssFeeds');
       if (!rssFeeds.some(f => f.url === url)) {
         const newFeeds = [...rssFeeds, { name, url }];
-        await chrome.storage.sync.set({ rssFeeds: newFeeds });
+        await browser.storage.sync.set({ rssFeeds: newFeeds });
         this.renderRssFeeds(newFeeds);
         nameInput.value = '';
         urlInput.value = '';
@@ -1096,9 +1096,9 @@ class SettingsPanel extends HTMLElement {
     container.querySelectorAll('button').forEach(btn => {
       btn.addEventListener('click', async () => {
         const key = btn.dataset.key;
-        const { deletedCommands = [] } = await chrome.storage.sync.get('deletedCommands');
+        const { deletedCommands = [] } = await browser.storage.sync.get('deletedCommands');
         const newDeletedCommands = deletedCommands.filter(k => k !== key);
-        await chrome.storage.sync.set({ deletedCommands: newDeletedCommands });
+        await browser.storage.sync.set({ deletedCommands: newDeletedCommands });
         this.renderDeletedCommands(newDeletedCommands);
         this.renderBuiltinCommands();
       });
@@ -1110,7 +1110,7 @@ class SettingsPanel extends HTMLElement {
     if (!container) return;
     
     // Get deleted commands
-    const { deletedCommands = [] } = await chrome.storage.sync.get('deletedCommands');
+    const { deletedCommands = [] } = await browser.storage.sync.get('deletedCommands');
     
     container.innerHTML = Array.from(COMMANDS)
       .filter(([key]) => !deletedCommands.includes(key))
@@ -1128,10 +1128,10 @@ class SettingsPanel extends HTMLElement {
     container.querySelectorAll('button').forEach(btn => {
       btn.addEventListener('click', async () => {
         const key = btn.dataset.key;
-        const { deletedCommands = [] } = await chrome.storage.sync.get('deletedCommands');
+        const { deletedCommands = [] } = await browser.storage.sync.get('deletedCommands');
         if (!deletedCommands.includes(key)) {
           const newDeletedCommands = [...deletedCommands, key];
-          await chrome.storage.sync.set({ deletedCommands: newDeletedCommands });
+          await browser.storage.sync.set({ deletedCommands: newDeletedCommands });
           this.renderDeletedCommands(newDeletedCommands);
           this.renderBuiltinCommands();
         }

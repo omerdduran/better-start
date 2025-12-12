@@ -10,11 +10,11 @@ class BookmarksBar extends HTMLElement {
     super();
     this.attachShadow({ mode: 'open' });
     this.loadSettings();
-    chrome.storage.onChanged.addListener(this.#onStorageChange);
+    browser.storage.onChanged.addListener(this.#onStorageChange);
   }
 
   async loadSettings() {
-    const settings = await chrome.storage.sync.get({
+    const settings = await browser.storage.sync.get({
       bookmarksEnabled: CONFIG.defaultSettings.bookmarksEnabled,
       bookmarksPosition: CONFIG.defaultSettings.bookmarksPosition,
       bookmarksLimit: CONFIG.defaultSettings.bookmarksLimit,
@@ -73,15 +73,15 @@ class BookmarksBar extends HTMLElement {
 
   async loadBookmarks() {
     try {
-      const bookmarks = await chrome.bookmarks.getRecent(this.#settings.limit);
+      const bookmarks = await browser.bookmarks.getRecent(this.#settings.limit);
       const container = this.shadowRoot.querySelector('.bookmarks-bar');
-      
+
       container.innerHTML = bookmarks.map(bookmark => `
         <a href="${bookmark.url}" class="bookmark" title="${bookmark.title}">
-          ${this.#settings.showFavicons ? 
-            `<img class="favicon" src="chrome://favicon/${bookmark.url}" alt="">` : 
-            ''
-          }
+          ${this.#settings.showFavicons ?
+          `<img class="favicon" src="${window.BrowserInfo.getFaviconUrl(bookmark.url)}" alt="">` :
+          ''
+        }
           <span>${bookmark.title}</span>
         </a>
       `).join('');
@@ -91,10 +91,10 @@ class BookmarksBar extends HTMLElement {
   }
 
   #onStorageChange = (changes) => {
-    if (changes.bookmarksEnabled || 
-        changes.bookmarksPosition || 
-        changes.bookmarksLimit || 
-        changes.bookmarksShowFavicons) {
+    if (changes.bookmarksEnabled ||
+      changes.bookmarksPosition ||
+      changes.bookmarksLimit ||
+      changes.bookmarksShowFavicons) {
       this.loadSettings();
     }
   };

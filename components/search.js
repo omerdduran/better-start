@@ -142,7 +142,7 @@ class Search extends HTMLElement {
     document.addEventListener('keydown', this.#onKeydown);
     this.loadSearchEngine();
     this.shadowRoot.append(clone);
-    chrome.storage.onChanged.addListener(this.#onStorageChange);
+    browser.storage.onChanged.addListener(this.#onStorageChange);
   }
 
   async loadSearchEngine() {
@@ -150,7 +150,7 @@ class Search extends HTMLElement {
       defaultSearch = 'duckduckgo',
       customSearchEngines = {},
       customCommands = {}
-    } = await chrome.storage.sync.get(['defaultSearch', 'customSearchEngines', 'customCommands']);
+    } = await browser.storage.sync.get(['defaultSearch', 'customSearchEngines', 'customCommands']);
     
     if (customSearchEngines[defaultSearch]) {
       this.#searchEngine = customSearchEngines[defaultSearch];
@@ -220,7 +220,7 @@ class Search extends HTMLElement {
   async fetchSuggestions(search) {
     const engine = this.#searchEngine || CONFIG.searchEngines.duckduckgo;
     try {
-      const { searchHistory = [] } = await chrome.storage.sync.get('searchHistory');
+      const { searchHistory = [] } = await browser.storage.sync.get('searchHistory');
       return searchHistory
         .filter(item => item.toLowerCase().includes(search.toLowerCase()))
         .filter(item => item.toLowerCase() !== search.toLowerCase())
@@ -232,12 +232,12 @@ class Search extends HTMLElement {
   }
 
   async #saveToHistory(query) {
-    const { searchHistory = [] } = await chrome.storage.sync.get('searchHistory');
+    const { searchHistory = [] } = await browser.storage.sync.get('searchHistory');
     const newHistory = [
       query,
       ...searchHistory.filter(q => q !== query)
     ].slice(0, CONFIG.defaultSettings.searchHistoryLimit);
-    await chrome.storage.sync.set({ searchHistory: newHistory });
+    await browser.storage.sync.set({ searchHistory: newHistory });
   }
 
   #close() {

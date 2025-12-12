@@ -10,11 +10,11 @@ class TodoWidget extends HTMLElement {
     super();
     this.attachShadow({ mode: 'open' });
     this.loadSettings();
-    chrome.storage.onChanged.addListener(this.#onStorageChange);
+    browser.storage.onChanged.addListener(this.#onStorageChange);
   }
 
   async loadSettings() {
-    const settings = await chrome.storage.sync.get({
+    const settings = await browser.storage.sync.get({
       todoEnabled: CONFIG.defaultSettings.todoEnabled,
       todoPosition: CONFIG.defaultSettings.todoPosition,
       todoExpanded: CONFIG.defaultSettings.todoExpanded,
@@ -152,7 +152,7 @@ class TodoWidget extends HTMLElement {
   }
 
   async loadTodos() {
-    const { todos = [] } = await chrome.storage.sync.get('todos');
+    const { todos = [] } = await browser.storage.sync.get('todos');
     const list = this.shadowRoot.querySelector('.todo-list');
     
     list.innerHTML = todos.map(todo => `
@@ -170,7 +170,7 @@ class TodoWidget extends HTMLElement {
     const minimize = this.shadowRoot.querySelector('.minimize');
     minimize?.addEventListener('click', () => {
       this.#settings.expanded = !this.#settings.expanded;
-      chrome.storage.sync.set({ todoExpanded: this.#settings.expanded });
+      browser.storage.sync.set({ todoExpanded: this.#settings.expanded });
       this.shadowRoot.querySelector('.todo-content').style.display = 
         this.#settings.expanded ? 'block' : 'none';
     });
@@ -181,7 +181,7 @@ class TodoWidget extends HTMLElement {
     
     input?.addEventListener('keypress', async (e) => {
       if (e.key === 'Enter' && input.value.trim()) {
-        const { todos = [] } = await chrome.storage.sync.get('todos');
+        const { todos = [] } = await browser.storage.sync.get('todos');
         const newTodo = {
           id: Date.now(),
           text: input.value.trim(),
@@ -190,7 +190,7 @@ class TodoWidget extends HTMLElement {
         };
         
         todos.push(newTodo);
-        await chrome.storage.sync.set({ todos });
+        await browser.storage.sync.set({ todos });
         this.loadTodos();
         input.value = '';
       }
@@ -202,17 +202,17 @@ class TodoWidget extends HTMLElement {
       const item = e.target.closest('.todo-item');
       if (!item) return;
 
-      const { todos = [] } = await chrome.storage.sync.get('todos');
+      const { todos = [] } = await browser.storage.sync.get('todos');
       const id = parseInt(item.dataset.id);
       const index = todos.findIndex(t => t.id === id);
       
       if (e.target.matches('input[type="checkbox"]')) {
         todos[index].done = e.target.checked;
-        await chrome.storage.sync.set({ todos });
+        await browser.storage.sync.set({ todos });
         this.loadTodos();
       } else if (e.target.matches('button')) {
         todos.splice(index, 1);
-        await chrome.storage.sync.set({ todos });
+        await browser.storage.sync.set({ todos });
         this.loadTodos();
       }
     });

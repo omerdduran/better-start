@@ -109,26 +109,26 @@ class Commands extends HTMLElement {
     super();
     this.attachShadow({ mode: 'open' });
     this.loadCommands();
-    chrome.storage.onChanged.addListener(this.#onStorageChange);
+    browser.storage.onChanged.addListener(this.#onStorageChange);
   }
 
   async loadCommands() {
     // Start with built-in commands
     // Load deleted commands state
-    const { deletedCommands = [] } = await chrome.storage.sync.get('deletedCommands');
+    const { deletedCommands = [] } = await browser.storage.sync.get('deletedCommands');
     this.#commands = new Map(
       Array.from(COMMANDS).filter(([key]) => !deletedCommands.includes(key))
     );
     
     // Add custom commands
-    const { customCommands = {} } = await chrome.storage.sync.get('customCommands');
+    const { customCommands = {} } = await browser.storage.sync.get('customCommands');
     for (const [key, command] of Object.entries(customCommands)) {
       this.#commands.set(key, command);
     }
     
     // Load settings
     const { commandsColumns = CONFIG.defaultSettings.commandsColumns } = 
-      await chrome.storage.sync.get('commandsColumns');
+      await browser.storage.sync.get('commandsColumns');
     this.#settings.columns = commandsColumns;
     
     this.render();
@@ -161,8 +161,8 @@ class Commands extends HTMLElement {
         deleteBtn.addEventListener('click', async (e) => {
           e.preventDefault();
           if (confirm(`Are you sure you want to delete the "${name}" command?`)) {
-            const { deletedCommands = [] } = await chrome.storage.sync.get('deletedCommands');
-            await chrome.storage.sync.set({ 
+            const { deletedCommands = [] } = await browser.storage.sync.get('deletedCommands');
+            await browser.storage.sync.set({ 
               deletedCommands: [...deletedCommands, key] 
             });
             this.loadCommands();

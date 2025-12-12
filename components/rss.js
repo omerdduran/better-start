@@ -13,11 +13,11 @@ class RssFeedWidget extends HTMLElement {
     this.attachShadow({ mode: 'open' });
     this.render();
     this.loadSettings();
-    chrome.storage.onChanged.addListener(this.#onStorageChange);
+    browser.storage.onChanged.addListener(this.#onStorageChange);
   }
 
   async loadSettings() {
-    const settings = await chrome.storage.sync.get({
+    const settings = await browser.storage.sync.get({
       rssEnabled: CONFIG.defaultSettings.rssEnabled,
       rssPosition: CONFIG.defaultSettings.rssPosition,
       rssExpanded: CONFIG.defaultSettings.rssExpanded,
@@ -198,7 +198,7 @@ class RssFeedWidget extends HTMLElement {
     const minimize = this.shadowRoot.querySelector('.minimize');
     minimize?.addEventListener('click', () => {
       this.#settings.expanded = !this.#settings.expanded;
-      chrome.storage.sync.set({ rssExpanded: this.#settings.expanded });
+      browser.storage.sync.set({ rssExpanded: this.#settings.expanded });
       this.shadowRoot.querySelector('.rss-content').style.display = 
         this.#settings.expanded ? 'block' : 'none';
     });
