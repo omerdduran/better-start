@@ -13,7 +13,6 @@ class SettingsPanel extends HTMLElement {
         this.setupEventListeners();
         this.setupCustomSearchEngines();
         this.setupCustomCommands();
-        this.setupRssFeeds();
         this.#initialized = true;
       });
     }
@@ -366,38 +365,6 @@ class SettingsPanel extends HTMLElement {
         </div>
 
         <div class="settings-section">
-          <h3>Notes</h3>
-          <div class="settings-grid">
-            <div class="form-group">
-              <label>
-                <input type="checkbox" id="notesEnabled">
-                Show notes widget
-              </label>
-            </div>
-            <div class="form-group">
-              <label for="notesPosition">Position</label>
-              <select id="notesPosition">
-                <option value="left">Left</option>
-                <option value="right">Right</option>
-              </select>
-            </div>
-            <div class="form-group">
-              <label>
-                <input type="checkbox" id="notesExpanded">
-                Start expanded
-              </label>
-            </div>
-          </div>
-        </div>
-
-        <div class="settings-section">
-          <h3>Data</h3>
-          <button id="exportData">Export Settings</button>
-          <button id="importData">Import Settings</button>
-          <button id="resetData">Reset to Default</button>
-        </div>
-
-        <div class="settings-section">
           <h3>Bookmarks</h3>
           <div class="settings-grid">
             <div class="form-group">
@@ -427,105 +394,10 @@ class SettingsPanel extends HTMLElement {
         </div>
 
         <div class="settings-section">
-          <h3>Todo List</h3>
-          <div class="settings-grid">
-            <div class="form-group">
-              <label>
-                <input type="checkbox" id="todoEnabled">
-                Show todo widget
-              </label>
-            </div>
-            <div class="form-group">
-              <label for="todoPosition">Position</label>
-              <select id="todoPosition">
-                <option value="left">Left</option>
-                <option value="right">Right</option>
-              </select>
-            </div>
-            <div class="form-group">
-              <label>Categories</label>
-              <div id="todoCategories"></div>
-              <button id="addTodoCategory">Add Category</button>
-            </div>
-          </div>
-        </div>
-
-        <div class="settings-section">
-          <h3>RSS Feeds</h3>
-          <div class="settings-grid">
-            <div class="form-group">
-              <label>
-                <input type="checkbox" id="rssEnabled">
-                Show RSS widget
-              </label>
-            </div>
-            <div class="form-group">
-              <label for="rssPosition">Position</label>
-              <select id="rssPosition">
-                <option value="left">Left</option>
-                <option value="right">Right</option>
-              </select>
-            </div>
-            <div class="form-group">
-              <label for="rssRefreshInterval">Refresh interval (minutes)</label>
-              <input type="number" id="rssRefreshInterval" min="5" max="120" step="5">
-            </div>
-          </div>
-          <div class="form-group">
-            <h4>Feed Sources</h4>
-            <ul class="feed-list" id="rssFeedList"></ul>
-            <form class="add-form" id="addRssFeedForm">
-              <div class="form-group">
-                <label for="feedName">Feed Name</label>
-                <input type="text" id="feedName" required>
-              </div>
-              <div class="form-group">
-                <label for="feedUrl">Feed URL</label>
-                <input type="url" id="feedUrl" required 
-                  placeholder="https://example.com/feed.xml">
-              </div>
-              <button type="submit">Add Feed</button>
-            </form>
-          </div>
-        </div>
-
-        <div class="settings-section">
-          <h3>Calendar</h3>
-          <div class="settings-grid">
-            <div class="form-group">
-              <label>
-                <input type="checkbox" id="calendarEnabled">
-                Show calendar widget
-              </label>
-            </div>
-            <div class="form-group">
-              <label for="calendarPosition">Position</label>
-              <select id="calendarPosition">
-                <option value="left">Left</option>
-                <option value="right">Right</option>
-              </select>
-            </div>
-            <div class="form-group">
-              <label for="calendarView">Default View</label>
-              <select id="calendarView">
-                <option value="month">Month</option>
-                <option value="week">Week</option>
-              </select>
-            </div>
-            <div class="form-group">
-              <label for="calendarFirstDay">First Day of Week</label>
-              <select id="calendarFirstDay">
-                <option value="0">Sunday</option>
-                <option value="1">Monday</option>
-              </select>
-            </div>
-            <div class="form-group">
-              <label>
-                <input type="checkbox" id="calendarShowEvents">
-                Show events
-              </label>
-            </div>
-          </div>
+          <h3>Data</h3>
+          <button id="exportData">Export Settings</button>
+          <button id="importData">Import Settings</button>
+          <button id="resetData">Reset to Default</button>
         </div>
       </div>
     `;
@@ -551,37 +423,13 @@ class SettingsPanel extends HTMLElement {
       clockEnabled: CONFIG.defaultSettings.clockEnabled,
       clock24h: CONFIG.defaultSettings.clock24h,
       clockShowDate: CONFIG.defaultSettings.clockShowDate,
-      notesEnabled: CONFIG.defaultSettings.notesEnabled,
-      notesPosition: CONFIG.defaultSettings.notesPosition,
-      notesExpanded: CONFIG.defaultSettings.notesExpanded,
       commandsColumns: CONFIG.defaultSettings.commandsColumns,
       commandsShowKeys: CONFIG.defaultSettings.commandsShowKeys,
       commandsShowNames: CONFIG.defaultSettings.commandsShowNames,
-      exportBtn: CONFIG.defaultSettings.exportBtn,
-      importBtn: CONFIG.defaultSettings.importBtn,
-      resetBtn: CONFIG.defaultSettings.resetBtn,
-      backgroundType: CONFIG.defaultSettings.backgroundType,
-      backgroundColor: CONFIG.defaultSettings.backgroundColor,
-      backgroundColorText: CONFIG.defaultSettings.backgroundColorText,
-      backgroundImage: CONFIG.defaultSettings.backgroundImage,
-      backgroundBlur: CONFIG.defaultSettings.backgroundBlur,
-      backgroundOpacity: CONFIG.defaultSettings.backgroundOpacity,
       bookmarksEnabled: CONFIG.defaultSettings.bookmarksEnabled,
       bookmarksPosition: CONFIG.defaultSettings.bookmarksPosition,
       bookmarksLimit: CONFIG.defaultSettings.bookmarksLimit,
-      bookmarksShowFavicons: CONFIG.defaultSettings.bookmarksShowFavicons,
-      todoEnabled: CONFIG.defaultSettings.todoEnabled,
-      todoPosition: CONFIG.defaultSettings.todoPosition,
-      addTodoCategory: CONFIG.defaultSettings.addTodoCategory,
-      rssEnabled: CONFIG.defaultSettings.rssEnabled,
-      rssPosition: CONFIG.defaultSettings.rssPosition,
-      rssRefreshInterval: CONFIG.defaultSettings.rssRefreshInterval,
-      rssFeeds: CONFIG.defaultSettings.rssFeeds,
-      calendarEnabled: CONFIG.defaultSettings.calendarEnabled,
-      calendarPosition: CONFIG.defaultSettings.calendarPosition,
-      calendarView: CONFIG.defaultSettings.calendarView,
-      calendarFirstDay: CONFIG.defaultSettings.calendarFirstDay,
-      calendarShowEvents: CONFIG.defaultSettings.calendarShowEvents
+      bookmarksShowFavicons: CONFIG.defaultSettings.bookmarksShowFavicons
     });
 
     // Get all setting elements
@@ -589,72 +437,42 @@ class SettingsPanel extends HTMLElement {
       // Theme settings
       theme: this.shadowRoot.getElementById('theme'),
       layout: this.shadowRoot.getElementById('layout'),
-      
+
       // Search settings
       defaultSearch: this.shadowRoot.getElementById('defaultSearch'),
       newTab: this.shadowRoot.getElementById('newTab'),
-      
+
       // Weather settings
       weatherEnabled: this.shadowRoot.getElementById('weatherEnabled'),
       weatherLocation: this.shadowRoot.getElementById('weatherLocation'),
       weatherF: this.shadowRoot.getElementById('weatherF'),
-      
+
       // Clock settings
       clockEnabled: this.shadowRoot.getElementById('clockEnabled'),
       clock24h: this.shadowRoot.getElementById('clock24h'),
       clockShowDate: this.shadowRoot.getElementById('clockShowDate'),
-      
-      // Notes settings
-      notesEnabled: this.shadowRoot.getElementById('notesEnabled'),
-      notesPosition: this.shadowRoot.getElementById('notesPosition'),
-      notesExpanded: this.shadowRoot.getElementById('notesExpanded'),
-      
+
       // Commands settings
       commandsColumns: this.shadowRoot.getElementById('commandsColumns'),
       commandsShowKeys: this.shadowRoot.getElementById('commandsShowKeys'),
       commandsShowNames: this.shadowRoot.getElementById('commandsShowNames'),
-      
-      // Data management
-      exportBtn: this.shadowRoot.getElementById('exportData'),
-      importBtn: this.shadowRoot.getElementById('importData'),
-      resetBtn: this.shadowRoot.getElementById('resetData'),
-      
-      // Background settings
-      backgroundType: this.shadowRoot.getElementById('backgroundType'),
-      backgroundColor: this.shadowRoot.getElementById('backgroundColor'),
-      backgroundColorText: this.shadowRoot.getElementById('backgroundColorText'),
-      backgroundImage: this.shadowRoot.getElementById('backgroundImage'),
-      backgroundBlur: this.shadowRoot.getElementById('backgroundBlur'),
-      backgroundOpacity: this.shadowRoot.getElementById('backgroundOpacity'),
-      
+
       // Bookmarks settings
       bookmarksEnabled: this.shadowRoot.getElementById('bookmarksEnabled'),
       bookmarksPosition: this.shadowRoot.getElementById('bookmarksPosition'),
       bookmarksLimit: this.shadowRoot.getElementById('bookmarksLimit'),
       bookmarksShowFavicons: this.shadowRoot.getElementById('bookmarksShowFavicons'),
-      
-      // Todo settings
-      todoEnabled: this.shadowRoot.getElementById('todoEnabled'),
-      todoPosition: this.shadowRoot.getElementById('todoPosition'),
-      addTodoCategory: this.shadowRoot.getElementById('addTodoCategory'),
-      
-      // RSS settings
-      rssEnabled: this.shadowRoot.getElementById('rssEnabled'),
-      rssPosition: this.shadowRoot.getElementById('rssPosition'),
-      rssRefreshInterval: this.shadowRoot.getElementById('rssRefreshInterval'),
-      
-      // Calendar settings
-      calendarEnabled: this.shadowRoot.getElementById('calendarEnabled'),
-      calendarPosition: this.shadowRoot.getElementById('calendarPosition'),
-      calendarView: this.shadowRoot.getElementById('calendarView'),
-      calendarFirstDay: this.shadowRoot.getElementById('calendarFirstDay'),
-      calendarShowEvents: this.shadowRoot.getElementById('calendarShowEvents')
+
+      // Data management
+      exportBtn: this.shadowRoot.getElementById('exportData'),
+      importBtn: this.shadowRoot.getElementById('importData'),
+      resetBtn: this.shadowRoot.getElementById('resetData')
     };
 
     // Set initial values for all elements
     Object.entries(elements).forEach(([key, element]) => {
       if (!element) return;
-      
+
       if (element.type === 'checkbox') {
         element.checked = settings[key];
       } else if (element.tagName === 'SELECT' || element.type === 'text') {
@@ -662,11 +480,7 @@ class SettingsPanel extends HTMLElement {
       }
     });
 
-    // Render todo categories
-    this.renderTodoCategories(settings.todoCategories || []);
 
-    // Render RSS feeds
-    this.renderRssFeeds(settings.rssFeeds || []);
 
     // Render deleted commands
     const { deletedCommands = [] } = await browser.storage.sync.get('deletedCommands');
@@ -684,66 +498,36 @@ class SettingsPanel extends HTMLElement {
       // Theme settings
       theme: this.shadowRoot.getElementById('theme'),
       layout: this.shadowRoot.getElementById('layout'),
-      
+
       // Search settings
       defaultSearch: this.shadowRoot.getElementById('defaultSearch'),
       newTab: this.shadowRoot.getElementById('newTab'),
-      
+
       // Weather settings
       weatherEnabled: this.shadowRoot.getElementById('weatherEnabled'),
       weatherLocation: this.shadowRoot.getElementById('weatherLocation'),
       weatherF: this.shadowRoot.getElementById('weatherF'),
-      
+
       // Clock settings
       clockEnabled: this.shadowRoot.getElementById('clockEnabled'),
       clock24h: this.shadowRoot.getElementById('clock24h'),
       clockShowDate: this.shadowRoot.getElementById('clockShowDate'),
-      
-      // Notes settings
-      notesEnabled: this.shadowRoot.getElementById('notesEnabled'),
-      notesPosition: this.shadowRoot.getElementById('notesPosition'),
-      notesExpanded: this.shadowRoot.getElementById('notesExpanded'),
-      
+
       // Commands settings
       commandsColumns: this.shadowRoot.getElementById('commandsColumns'),
       commandsShowKeys: this.shadowRoot.getElementById('commandsShowKeys'),
       commandsShowNames: this.shadowRoot.getElementById('commandsShowNames'),
-      
-      // Data management
-      exportBtn: this.shadowRoot.getElementById('exportData'),
-      importBtn: this.shadowRoot.getElementById('importData'),
-      resetBtn: this.shadowRoot.getElementById('resetData'),
-      
-      // Background settings
-      backgroundType: this.shadowRoot.getElementById('backgroundType'),
-      backgroundColor: this.shadowRoot.getElementById('backgroundColor'),
-      backgroundColorText: this.shadowRoot.getElementById('backgroundColorText'),
-      backgroundImage: this.shadowRoot.getElementById('backgroundImage'),
-      backgroundBlur: this.shadowRoot.getElementById('backgroundBlur'),
-      backgroundOpacity: this.shadowRoot.getElementById('backgroundOpacity'),
-      
+
       // Bookmarks settings
       bookmarksEnabled: this.shadowRoot.getElementById('bookmarksEnabled'),
       bookmarksPosition: this.shadowRoot.getElementById('bookmarksPosition'),
       bookmarksLimit: this.shadowRoot.getElementById('bookmarksLimit'),
       bookmarksShowFavicons: this.shadowRoot.getElementById('bookmarksShowFavicons'),
-      
-      // Todo settings
-      todoEnabled: this.shadowRoot.getElementById('todoEnabled'),
-      todoPosition: this.shadowRoot.getElementById('todoPosition'),
-      addTodoCategory: this.shadowRoot.getElementById('addTodoCategory'),
-      
-      // RSS settings
-      rssEnabled: this.shadowRoot.getElementById('rssEnabled'),
-      rssPosition: this.shadowRoot.getElementById('rssPosition'),
-      rssRefreshInterval: this.shadowRoot.getElementById('rssRefreshInterval'),
-      
-      // Calendar settings
-      calendarEnabled: this.shadowRoot.getElementById('calendarEnabled'),
-      calendarPosition: this.shadowRoot.getElementById('calendarPosition'),
-      calendarView: this.shadowRoot.getElementById('calendarView'),
-      calendarFirstDay: this.shadowRoot.getElementById('calendarFirstDay'),
-      calendarShowEvents: this.shadowRoot.getElementById('calendarShowEvents')
+
+      // Data management
+      exportBtn: this.shadowRoot.getElementById('exportData'),
+      importBtn: this.shadowRoot.getElementById('importData'),
+      resetBtn: this.shadowRoot.getElementById('resetData')
     };
 
     // Theme handling
@@ -772,32 +556,7 @@ class SettingsPanel extends HTMLElement {
     elements.importBtn?.addEventListener('click', () => this.importSettings());
     elements.resetBtn?.addEventListener('click', () => this.resetSettings());
 
-    // Todo Categories
-    elements.addTodoCategory?.addEventListener('click', async () => {
-      const category = prompt('Enter category name:');
-      if (!category) return;
 
-      const { todoCategories = [] } = await browser.storage.sync.get('todoCategories');
-      if (!todoCategories.includes(category)) {
-        todoCategories.push(category);
-        await browser.storage.sync.set({ todoCategories });
-        this.renderTodoCategories(todoCategories);
-      }
-    });
-
-    // RSS Feeds
-    elements.addRssFeed?.addEventListener('click', async () => {
-      const name = prompt('Enter feed name:');
-      if (!name) return;
-      
-      const url = prompt('Enter feed URL:');
-      if (!url) return;
-
-      const { rssFeeds = [] } = await browser.storage.sync.get('rssFeeds');
-      rssFeeds.push({ name, url });
-      await browser.storage.sync.set({ rssFeeds });
-      this.renderRssFeeds(rssFeeds);
-    });
   }
 
   setTheme(theme) {
@@ -878,7 +637,7 @@ class SettingsPanel extends HTMLElement {
   async setupCustomSearchEngines() {
     // Wait for DOM to be ready
     await new Promise(resolve => requestAnimationFrame(resolve));
-    
+
     const { customSearchEngines = {} } = await browser.storage.sync.get('customSearchEngines');
     this.renderCustomSearchEngines(customSearchEngines);
 
@@ -941,7 +700,7 @@ class SettingsPanel extends HTMLElement {
   async setupCustomCommands() {
     // Wait for DOM to be ready
     await new Promise(resolve => requestAnimationFrame(resolve));
-    
+
     const { customCommands = {} } = await browser.storage.sync.get('customCommands');
     this.renderCustomCommands(customCommands);
 
@@ -1002,84 +761,12 @@ class SettingsPanel extends HTMLElement {
     });
   }
 
-  async renderTodoCategories(categories) {
-    const container = this.shadowRoot.getElementById('todoCategories');
-    container.innerHTML = categories.map(category => `
-      <div class="todo-category">
-        <span>${category}</span>
-        <button data-category="${category}">×</button>
-      </div>
-    `).join('');
 
-    container.querySelectorAll('button').forEach(btn => {
-      btn.addEventListener('click', async () => {
-        const category = btn.dataset.category;
-        const { todoCategories = [] } = await browser.storage.sync.get('todoCategories');
-        const newCategories = todoCategories.filter(c => c !== category);
-        await browser.storage.sync.set({ todoCategories: newCategories });
-        this.renderTodoCategories(newCategories);
-      });
-    });
-  }
-
-  async renderRssFeeds(feeds) {
-    const list = this.shadowRoot.getElementById('rssFeedList');
-    if (!list) return;
-
-    list.innerHTML = feeds.map(feed => `
-      <li class="feed-item">
-        <div>
-          <strong>${feed.name}</strong>
-          <small>${feed.url}</small>
-        </div>
-        <button type="button" data-url="${feed.url}">Remove</button>
-      </li>
-    `).join('');
-
-    // Add remove handlers
-    list.querySelectorAll('button').forEach(btn => {
-      btn.addEventListener('click', async () => {
-        const url = btn.dataset.url;
-        const { rssFeeds = [] } = await browser.storage.sync.get('rssFeeds');
-        const newFeeds = rssFeeds.filter(f => f.url !== url);
-        await browser.storage.sync.set({ rssFeeds: newFeeds });
-        this.renderRssFeeds(newFeeds);
-      });
-    });
-  }
-
-  setupRssFeeds() {
-    // Add RSS feed form handler
-    const form = this.shadowRoot.getElementById('addRssFeedForm');
-    if (!form) return;
-    
-    form.addEventListener('submit', async (e) => {
-      e.preventDefault();
-      const nameInput = this.shadowRoot.getElementById('feedName');
-      const urlInput = this.shadowRoot.getElementById('feedUrl');
-      
-      if (!nameInput || !urlInput) return;
-      
-      const name = nameInput.value.trim();
-      const url = urlInput.value.trim();
-      
-      if (!name || !url) return;
-
-      const { rssFeeds = [] } = await browser.storage.sync.get('rssFeeds');
-      if (!rssFeeds.some(f => f.url === url)) {
-        const newFeeds = [...rssFeeds, { name, url }];
-        await browser.storage.sync.set({ rssFeeds: newFeeds });
-        this.renderRssFeeds(newFeeds);
-        nameInput.value = '';
-        urlInput.value = '';
-      }
-    });
-  }
 
   async renderDeletedCommands(deletedCommands) {
     const container = this.shadowRoot.getElementById('hiddenCommandsList');
     if (!container) return;
-    
+
     container.innerHTML = deletedCommands.map(key => {
       const command = COMMANDS.get(key);
       if (!command) return '';
@@ -1091,7 +778,7 @@ class SettingsPanel extends HTMLElement {
         </div>
       `;
     }).join('');
-    
+
     // Add restore handlers
     container.querySelectorAll('button').forEach(btn => {
       btn.addEventListener('click', async () => {
@@ -1108,10 +795,10 @@ class SettingsPanel extends HTMLElement {
   async renderBuiltinCommands() {
     const container = this.shadowRoot.getElementById('builtinCommandsList');
     if (!container) return;
-    
+
     // Get deleted commands
     const { deletedCommands = [] } = await browser.storage.sync.get('deletedCommands');
-    
+
     container.innerHTML = Array.from(COMMANDS)
       .filter(([key]) => !deletedCommands.includes(key))
       .map(([key, command]) => `
@@ -1123,7 +810,7 @@ class SettingsPanel extends HTMLElement {
           <button type="button" data-key="${key}">Delete</button>
         </div>
       `).join('');
-    
+
     // Add delete handlers
     container.querySelectorAll('button').forEach(btn => {
       btn.addEventListener('click', async () => {
