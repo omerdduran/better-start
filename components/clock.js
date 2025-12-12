@@ -30,9 +30,6 @@ class ClockWidget extends HTMLElement {
           top: var(--space);
           right: var(--space);
           padding: var(--space);
-          background: var(--color-background);
-          border-radius: var(--border-radius);
-          box-shadow: var(--elevation-1);
           text-align: right;
           opacity: 0.8;
           transition: opacity var(--transition-speed);
@@ -76,7 +73,7 @@ class ClockWidget extends HTMLElement {
     if (clock) {
       clock.style.display = this.#settings.enabled ? 'block' : 'none';
     }
-    
+
     // Start/stop clock updates
     if (this.#settings.enabled) {
       this.startClock();
@@ -88,10 +85,10 @@ class ClockWidget extends HTMLElement {
   startClock() {
     // Clear any existing interval
     this.stopClock();
-    
+
     // Update immediately
     this.updateClock();
-    
+
     // Set new interval
     this.#updateInterval = setInterval(() => this.updateClock(), 1000);
   }
@@ -107,22 +104,22 @@ class ClockWidget extends HTMLElement {
     const now = new Date();
     const time = this.shadowRoot.querySelector('.time');
     const date = this.shadowRoot.querySelector('.date');
-    
+
     if (time && date) {
       // Update time with format preference
-      time.textContent = now.toLocaleTimeString([], { 
-        hour: '2-digit', 
+      time.textContent = now.toLocaleTimeString([], {
+        hour: '2-digit',
         minute: '2-digit',
         hour12: !this.#settings.use24h
       });
-      
+
       // Show/hide date based on settings
       date.style.display = this.#settings.showDate ? 'block' : 'none';
       if (this.#settings.showDate) {
-        date.textContent = now.toLocaleDateString([], { 
-          weekday: 'long', 
-          month: 'long', 
-          day: 'numeric' 
+        date.textContent = now.toLocaleDateString([], {
+          weekday: 'long',
+          month: 'long',
+          day: 'numeric'
         });
       }
     }

@@ -2,7 +2,8 @@ class WeatherWidget extends HTMLElement {
   #settings = {
     enabled: true,
     location: '',
-    useF: false
+    useF: false,
+    position: 'left'
   };
 
   constructor() {
@@ -21,9 +22,6 @@ class WeatherWidget extends HTMLElement {
           ${this.#settings.position}: var(--space);
           top: var(--space);
           padding: var(--space);
-          background: var(--color-background);
-          border-radius: var(--border-radius);
-          box-shadow: var(--elevation-1);
           display: ${this.#settings.enabled ? 'flex' : 'none'};
           align-items: center;
           gap: var(--space);
@@ -62,14 +60,14 @@ class WeatherWidget extends HTMLElement {
       weatherLocation: '',
       weatherF: false
     });
-    
+
     this.#settings = {
       enabled: settings.weatherEnabled,
       location: settings.weatherLocation,
       useF: settings.weatherF
     };
 
-    this.shadowRoot.querySelector('.weather').style.display = 
+    this.shadowRoot.querySelector('.weather').style.display =
       this.#settings.enabled ? 'flex' : 'none';
 
     if (this.#settings.enabled) {
@@ -81,7 +79,7 @@ class WeatherWidget extends HTMLElement {
     try {
       const weather = await this.fetchWeather();
       this.updateWeather(weather);
-      
+
       // Update weather every 30 minutes
       setTimeout(() => this.loadWeather(), 30 * 60 * 1000);
     } catch (error) {
@@ -101,18 +99,18 @@ class WeatherWidget extends HTMLElement {
       const temp = this.shadowRoot.querySelector('.temp');
       const location = this.shadowRoot.querySelector('.location');
       const icon = this.shadowRoot.querySelector('.weather-icon-text');
-      
+
       const current = data.current_condition[0];
       const area = data.nearest_area[0];
-      
+
       const temperature = this.#settings.useF ? current.temp_F : current.temp_C;
       const unit = this.#settings.useF ? 'F' : 'C';
       temp.textContent = `${temperature}°${unit}`;
-      
+
       const cityName = area.areaName[0].value;
       const countryCode = area.country[0].value;
       location.textContent = `${cityName}, ${countryCode}`;
-      
+
       const weatherCode = current.weatherCode;
       icon.textContent = this.getWeatherIcon(weatherCode);
       icon.title = current.weatherDesc[0].value;
@@ -126,7 +124,7 @@ class WeatherWidget extends HTMLElement {
     const temp = this.shadowRoot.querySelector('.temp');
     const location = this.shadowRoot.querySelector('.location');
     const icon = this.shadowRoot.querySelector('.weather-icon-text');
-    
+
     temp.textContent = '--°C';
     location.textContent = 'Weather unavailable';
     icon.style.display = 'none';
