@@ -83,9 +83,6 @@ commandTemplate.innerHTML = `
 
 class Commands extends HTMLElement {
   #commands = new Map();
-  #settings = {
-    columns: 'auto'
-  };
 
   constructor() {
     super();
@@ -108,24 +105,12 @@ class Commands extends HTMLElement {
       this.#commands.set(key, command);
     }
 
-    // Load settings
-    const { commandsColumns = CONFIG.defaultSettings.commandsColumns } =
-      await browser.storage.sync.get('commandsColumns');
-    this.#settings.columns = commandsColumns;
-
     this.render();
   }
 
   render() {
     const clone = commandsTemplate.content.cloneNode(true);
     const commands = clone.querySelector('.commands');
-
-    // Apply columns setting
-    if (this.#settings.columns !== 'auto') {
-      commands.style.columns = this.#settings.columns;
-    } else {
-      commands.style.removeProperty('columns');
-    }
 
     for (const [key, { name, url }] of this.#commands.entries()) {
       if (!name || !url) continue;
@@ -144,7 +129,7 @@ class Commands extends HTMLElement {
   }
 
   #onStorageChange = (changes) => {
-    if (changes.customCommands || changes.commandsColumns || changes.deletedCommands) {
+    if (changes.customCommands || changes.deletedCommands) {
       this.loadCommands();
     }
   };

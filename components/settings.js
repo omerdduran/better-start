@@ -11,7 +11,6 @@ class SettingsPanel extends HTMLElement {
       this.render();
       this.loadSettings().then(() => {
         this.setupEventListeners();
-        this.setupCustomSearchEngines();
         this.setupCustomCommands();
         this.#initialized = true;
       });
@@ -21,21 +20,25 @@ class SettingsPanel extends HTMLElement {
   render() {
     this.shadowRoot.innerHTML = `
       <style>
+        * {
+          box-sizing: border-box;
+        }
+
         .settings-panel {
-          animation: slideUp var(--animation-duration) ease-out;
+          animation: slideUp 200ms ease-out;
           background: var(--color-background);
           border-radius: var(--border-radius);
-          box-shadow: var(--elevation-2);
+          box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
           display: none;
-          max-height: 80vh;
+          max-height: 70vh;
           overflow-y: auto;
           scrollbar-width: none;
           -ms-overflow-style: none;
-          padding: var(--space);
+          padding: 1.5rem;
           position: fixed;
           right: var(--space);
           bottom: calc(var(--space) * 4);
-          width: min(90vw, 400px);
+          width: min(90vw, 360px);
           z-index: 99;
         }
 
@@ -47,353 +50,372 @@ class SettingsPanel extends HTMLElement {
           display: block;
         }
 
-        .settings-section {
-          border-bottom: 1px solid var(--color-text-subtle);
-          padding: calc(var(--space) * 1.5) 0;
+        @keyframes slideUp {
+          from { opacity: 0; transform: translateY(10px); }
+          to { opacity: 1; transform: translateY(0); }
         }
 
-        .settings-section:last-child {
+        .header {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          margin-bottom: 1.5rem;
+          padding-bottom: 1rem;
+          border-bottom: 1px solid rgba(136, 136, 136, 0.2);
+        }
+
+        .header h2 {
+          color: var(--color-text);
+          margin: 0;
+          font-size: 1.1rem;
+          font-weight: 600;
+        }
+
+        .close-btn {
+          background: none;
+          border: none;
+          color: var(--color-text-subtle);
+          cursor: pointer;
+          font-size: 1.5rem;
+          line-height: 1;
+          padding: 0;
+          transition: color 150ms;
+        }
+
+        .close-btn:hover {
+          color: var(--color-text);
+        }
+
+        .section {
+          margin-bottom: 1.5rem;
+        }
+
+        .section:last-child {
+          margin-bottom: 0;
+        }
+
+        .section-title {
+          color: var(--color-text-subtle);
+          font-size: 0.75rem;
+          font-weight: 600;
+          letter-spacing: 0.5px;
+          text-transform: uppercase;
+          margin: 0 0 0.75rem 0;
+        }
+
+        .option {
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          padding: 0.5rem 0;
+        }
+
+        .option-label {
+          color: var(--color-text);
+          font-size: 0.9rem;
+        }
+
+        /* Toggle Switch */
+        .toggle {
+          position: relative;
+          width: 40px;
+          height: 22px;
+        }
+
+        .toggle input {
+          opacity: 0;
+          width: 0;
+          height: 0;
+        }
+
+        .toggle-slider {
+          position: absolute;
+          inset: 0;
+          background: rgba(136, 136, 136, 0.3);
+          border-radius: 11px;
+          cursor: pointer;
+          transition: background 150ms;
+        }
+
+        .toggle-slider::before {
+          content: '';
+          position: absolute;
+          height: 18px;
+          width: 18px;
+          left: 2px;
+          bottom: 2px;
+          background: white;
+          border-radius: 50%;
+          transition: transform 150ms;
+        }
+
+        .toggle input:checked + .toggle-slider {
+          background: var(--color-accent);
+        }
+
+        .toggle input:checked + .toggle-slider::before {
+          transform: translateX(18px);
+        }
+
+        /* Select */
+        select {
+          appearance: none;
+          background: rgba(136, 136, 136, 0.1);
+          border: 1px solid rgba(136, 136, 136, 0.2);
+          border-radius: 6px;
+          color: var(--color-text);
+          cursor: pointer;
+          font-size: 0.85rem;
+          padding: 0.4rem 2rem 0.4rem 0.75rem;
+          background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23888' d='M6 8L2 4h8z'/%3E%3C/svg%3E");
+          background-repeat: no-repeat;
+          background-position: right 0.5rem center;
+        }
+
+        select:focus {
+          outline: none;
+          border-color: var(--color-accent);
+        }
+
+        /* Text Input */
+        input[type="text"],
+        input[type="url"] {
+          background: rgba(136, 136, 136, 0.1);
+          border: 1px solid rgba(136, 136, 136, 0.2);
+          border-radius: 6px;
+          color: var(--color-text);
+          font-size: 0.85rem;
+          padding: 0.5rem 0.75rem;
+          width: 100%;
+        }
+
+        input[type="text"]:focus,
+        input[type="url"]:focus {
+          outline: none;
+          border-color: var(--color-accent);
+        }
+
+        input::placeholder {
+          color: var(--color-text-subtle);
+        }
+
+        /* Commands List */
+        .commands-list {
+          margin-top: 0.5rem;
+        }
+
+        .command-item {
+          display: flex;
+          align-items: center;
+          gap: 0.75rem;
+          padding: 0.5rem 0;
+          border-bottom: 1px solid rgba(136, 136, 136, 0.1);
+        }
+
+        .command-item:last-child {
           border-bottom: none;
         }
 
-        h2, h3 {
-          color: var(--color-text);
-          margin: 0;
-          font-size: 1.2em;
-          font-weight: 600;
-          margin-bottom: var(--space);
-        }
-
-        h4 {
-          color: var(--color-text);
-          margin: var(--space) 0;
-          font-size: 0.9em;
-          opacity: 0.8;
-        }
-
-        .form-group {
-          margin: calc(var(--space) * 0.75) 0;
-        }
-
-        .form-group input[type="checkbox"] {
-          appearance: none;
-          -webkit-appearance: none;
-          width: 18px;
-          height: 18px;
-          border: 2px solid var(--color-text-subtle);
+        .command-key {
+          background: rgba(136, 136, 136, 0.15);
           border-radius: 4px;
-          margin: 0;
-          cursor: pointer;
-          position: relative;
-          transition: all var(--transition-speed);
-        }
-
-        .form-group input[type="checkbox"]:checked {
-          background: var(--color-accent);
-          border-color: var(--color-accent);
-        }
-
-        .form-group input[type="checkbox"]:checked::after {
-          content: '✓';
-          color: white;
-          position: absolute;
-          left: 50%;
-          top: 50%;
-          transform: translate(-50%, -50%);
-          font-size: 12px;
-        }
-
-        .form-group input[type="checkbox"]:hover {
-          border-color: var(--color-accent);
-        }
-
-        .form-group label {
-          display: flex;
-          align-items: center;
-          gap: calc(var(--space) / 2);
           color: var(--color-text);
-          font-size: 0.9em;
-          cursor: pointer;
-          user-select: none;
+          font-size: 0.8rem;
+          font-weight: 600;
+          padding: 0.2rem 0.5rem;
+          min-width: 2rem;
+          text-align: center;
         }
 
-        .form-group input,
-        .form-group select {
-          background: transparent;
-          border: 1px solid var(--color-text-subtle);
-          border-radius: calc(var(--border-radius) / 2);
-          color: var(--color-text);
-          padding: calc(var(--space) / 3);
-          width: 100%;
-          font-size: 0.9em;
-          transition: border-color var(--transition-speed);
+        .command-name {
+          color: var(--color-text-subtle);
+          font-size: 0.85rem;
+          flex: 1;
         }
 
-        .form-group input:focus,
-        .form-group select:focus {
-          border-color: var(--color-accent);
-          outline: none;
-        }
-
-        .settings-grid {
-          display: grid;
-          gap: calc(var(--space) / 2);
-          margin-top: var(--space);
-        }
-
-        button {
-          background: var(--color-accent);
+        .delete-btn {
+          background: none;
           border: none;
-          border-radius: calc(var(--border-radius) / 2);
-          color: white;
+          color: var(--color-text-subtle);
           cursor: pointer;
-          padding: calc(var(--space) / 3) var(--space);
-          font-size: 0.9em;
-          opacity: 0.85;
-          transition: opacity var(--transition-speed);
+          font-size: 1rem;
+          padding: 0.25rem;
+          opacity: 0.5;
+          transition: opacity 150ms, color 150ms;
         }
 
-        button:hover {
+        .delete-btn:hover {
+          color: #ff4a4a;
           opacity: 1;
         }
 
-        .close-button {
-          position: absolute;
-          top: var(--space);
-          right: var(--space);
-          background: transparent;
-          color: var(--color-text);
-          opacity: 0.6;
-          font-size: 1.5em;
-          padding: 0;
+        /* Add Command Form */
+        .add-form {
+          display: grid;
+          gap: 0.5rem;
+          margin-top: 0.75rem;
+          padding-top: 0.75rem;
+          border-top: 1px solid rgba(136, 136, 136, 0.1);
         }
 
-        .settings-panel::-webkit-scrollbar {
-          width: 6px;
+        .form-row {
+          display: grid;
+          grid-template-columns: 3rem 1fr;
+          gap: 0.5rem;
         }
 
-        .settings-panel::-webkit-scrollbar-track {
-          background: transparent;
+        .add-btn {
+          background: var(--color-accent);
+          border: none;
+          border-radius: 6px;
+          color: white;
+          cursor: pointer;
+          font-size: 0.85rem;
+          font-weight: 500;
+          padding: 0.5rem 1rem;
+          transition: opacity 150ms;
         }
 
-        .settings-panel::-webkit-scrollbar-thumb {
-          background: var(--color-text-subtle);
-          border-radius: 3px;
-          opacity: 0.5;
+        .add-btn:hover {
+          opacity: 0.9;
         }
 
-        .custom-list,
-        .custom-search-list {
-          list-style: none;
-          padding: 0;
-          margin: var(--space) 0;
+        .input-small {
+          text-align: center;
         }
 
-        .custom-item,
-        .custom-search-item {
-          display: flex;
-          align-items: center;
-          gap: var(--space);
-          padding: calc(var(--space) / 2);
-          background: var(--color-overlay);
-          border-radius: calc(var(--border-radius) / 2);
-          margin-bottom: calc(var(--space) / 2);
+        .subsection {
+          margin-top: 0.75rem;
+          padding-top: 0.75rem;
+          border-top: 1px solid rgba(136, 136, 136, 0.1);
+        }
+
+        .subsection-title {
+          color: var(--color-text-subtle);
+          font-size: 0.8rem;
+          margin: 0 0 0.5rem 0;
         }
       </style>
+
       <div class="settings-panel">
-        <button class="close-button" aria-label="Close settings">×</button>
-        <h2>Settings</h2>
-        
-        <div class="settings-section">
-          <h3>Appearance</h3>
-          <div class="settings-grid">
-            <div class="form-group">
-              <label for="theme">Theme</label>
-              <select id="theme">
-                <option value="system">System</option>
-                <option value="light">Light</option>
-                <option value="dark">Dark</option>
-              </select>
-            </div>
-            <div class="form-group">
-              <label for="layout">Layout</label>
-              <select id="layout">
-                <option value="grid">Grid</option>
-                <option value="list">List</option>
-              </select>
-            </div>
+        <div class="header">
+          <h2>Settings</h2>
+          <button class="close-btn" aria-label="Close">×</button>
+        </div>
+
+        <!-- Widgets Section -->
+        <div class="section">
+          <h3 class="section-title">Widgets</h3>
+          
+          <div class="option">
+            <span class="option-label">Weather</span>
+            <label class="toggle">
+              <input type="checkbox" id="weatherEnabled">
+              <span class="toggle-slider"></span>
+            </label>
+          </div>
+
+          <div class="option">
+            <span class="option-label">Fahrenheit</span>
+            <label class="toggle">
+              <input type="checkbox" id="weatherF">
+              <span class="toggle-slider"></span>
+            </label>
+          </div>
+
+          <div class="option">
+            <input type="text" id="weatherLocation" placeholder="Location (auto-detect if empty)">
+          </div>
+
+          <div class="option">
+            <span class="option-label">Clock</span>
+            <label class="toggle">
+              <input type="checkbox" id="clockEnabled">
+              <span class="toggle-slider"></span>
+            </label>
+          </div>
+
+          <div class="option">
+            <span class="option-label">24-hour format</span>
+            <label class="toggle">
+              <input type="checkbox" id="clock24h">
+              <span class="toggle-slider"></span>
+            </label>
+          </div>
+
+          <div class="option">
+            <span class="option-label">Show date</span>
+            <label class="toggle">
+              <input type="checkbox" id="clockShowDate">
+              <span class="toggle-slider"></span>
+            </label>
           </div>
         </div>
 
-        <div class="settings-section">
-          <h3>Commands</h3>
-          <div class="settings-grid">
-            <div class="form-group">
-              <label for="commandsColumns">Grid Columns</label>
-              <select id="commandsColumns">
-                <option value="auto">Auto</option>
-                <option value="2">2</option>
-                <option value="3">3</option>
-                <option value="4">4</option>
-                <option value="6">6</option>
-              </select>
-            </div>
-            <div class="form-group">
-              <label>
-                <input type="checkbox" id="commandsShowKeys">
-                Show Command Keys
-              </label>
-            </div>
-            <div class="form-group">
-              <label>
-                <input type="checkbox" id="commandsShowNames">
-                Show Command Names
-              </label>
-            </div>
+        <!-- Search Section -->
+        <div class="section">
+          <h3 class="section-title">Search</h3>
+          
+          <div class="option">
+            <span class="option-label">Engine</span>
+            <select id="defaultSearch">
+              <option value="duckduckgo">DuckDuckGo</option>
+              <option value="google">Google</option>
+              <option value="bing">Bing</option>
+            </select>
           </div>
-          <div class="form-group">
-            <h4>Deleted Built-in Commands</h4>
-            <div id="hiddenCommandsList"></div>
-          </div>
-          <div class="form-group">
-            <h4>Built-in Commands</h4>
-            <div id="builtinCommandsList"></div>
-          </div>
-          <div class="form-group">
-            <h4>Custom Commands</h4>
-            <ul class="custom-list" id="customCommandList"></ul>
-            <form class="add-form" id="addCommandForm">
-              <div class="form-group">
-                <label for="commandKey">Key (shortcut)</label>
-                <input type="text" id="commandKey" maxlength="10" required>
-              </div>
-              <div class="form-group">
-                <label for="commandName">Name</label>
-                <input type="text" id="commandName" required>
-              </div>
-              <div class="form-group">
-                <label for="commandUrl">URL</label>
-                <input type="url" id="commandUrl" required>
-              </div>
-              <div class="form-group">
-                <label for="commandSearchTemplate">Search Template (optional)</label>
-                <input type="text" id="commandSearchTemplate" 
-                  placeholder="?q={} or /search?q={}">
-              </div>
-              <button type="submit">Add Command</button>
-            </form>
+
+          <div class="option">
+            <span class="option-label">Open in new tab</span>
+            <label class="toggle">
+              <input type="checkbox" id="newTab">
+              <span class="toggle-slider"></span>
+            </label>
           </div>
         </div>
 
-        <div class="settings-section">
-          <h3>Search</h3>
-          <div class="settings-grid">
-            <div class="form-group">
-              <label for="defaultSearch">Default Search Engine</label>
-              <select id="defaultSearch">
-                <option value="duckduckgo">DuckDuckGo</option>
-                <option value="google">Google</option>
-                <option value="bing">Bing</option>
-                <optgroup label="Custom" id="customSearchOptions"></optgroup>
-              </select>
+        <!-- Links Section -->
+        <div class="section">
+          <h3 class="section-title">Links</h3>
+          
+          <div class="commands-list" id="commandsList"></div>
+
+          <form class="add-form" id="addCommandForm">
+            <div class="form-row">
+              <input type="text" id="commandKey" class="input-small" placeholder="Key" maxlength="3" required>
+              <input type="text" id="commandName" placeholder="Name" required>
             </div>
-            <div class="form-group">
-              <label>
-                <input type="checkbox" id="newTab">
-                Open links in new tab
-              </label>
-            </div>
-          </div>
-          <div class="form-group">
-            <h4>Custom Search Engines</h4>
-            <ul class="custom-search-list" id="customSearchList"></ul>
-            <form class="add-form" id="addSearchForm">
-              <div class="form-group">
-                <label for="searchName">Name</label>
-                <input type="text" id="searchName" required>
-              </div>
-              <div class="form-group">
-                <label for="searchUrl">Search URL (use {} for query)</label>
-                <input type="text" id="searchUrl" 
-                  placeholder="https://example.com/search?q={}" required>
-              </div>
-              <button type="submit">Add Search Engine</button>
-            </form>
-          </div>
+            <input type="url" id="commandUrl" placeholder="URL" required>
+            <button type="submit" class="add-btn">Add Link</button>
+          </form>
         </div>
 
-        <div class="settings-section">
-          <h3>Weather</h3>
-          <div class="settings-grid">
-            <div class="form-group">
-              <label>
-                <input type="checkbox" id="weatherEnabled">
-                Show weather widget
-              </label>
-            </div>
-            <div class="form-group">
-              <label for="weatherLocation">Custom Location</label>
-              <input type="text" id="weatherLocation" 
-                placeholder="e.g., London or Paris,France">
-              <small class="help-text">Leave empty for auto-detection</small>
-            </div>
-            <div class="form-group">
-              <label>
-                <input type="checkbox" id="weatherF">
-                Use Fahrenheit
-              </label>
-            </div>
+        <!-- Theme Section -->
+        <div class="section">
+          <h3 class="section-title">Theme</h3>
+          
+          <div class="option">
+            <span class="option-label">Appearance</span>
+            <select id="theme">
+              <option value="system">System</option>
+              <option value="light">Light</option>
+              <option value="dark">Dark</option>
+            </select>
           </div>
-        </div>
-
-        <div class="settings-section">
-          <h3>Clock</h3>
-          <div class="settings-grid">
-            <div class="form-group">
-              <label>
-                <input type="checkbox" id="clockEnabled">
-                Show clock widget
-              </label>
-            </div>
-            <div class="form-group">
-              <label>
-                <input type="checkbox" id="clock24h">
-                Use 24-hour format
-              </label>
-            </div>
-            <div class="form-group">
-              <label>
-                <input type="checkbox" id="clockShowDate">
-                Show date
-              </label>
-            </div>
-          </div>
-        </div>
-
-
-
-        <div class="settings-section">
-          <h3>Data</h3>
-          <button id="exportData">Export Settings</button>
-          <button id="importData">Import Settings</button>
-          <button id="resetData">Reset to Default</button>
         </div>
       </div>
     `;
 
-    this.shadowRoot.querySelector('.close-button').addEventListener('click', () => {
-      this.shadowRoot.querySelector('.settings-panel').classList.remove('open');
+    this.shadowRoot.querySelector('.close-btn').addEventListener('click', () => {
+      this.close();
     });
   }
 
   async loadSettings() {
-    // Wait for DOM to be ready
     await new Promise(resolve => requestAnimationFrame(resolve));
 
-    // Load all settings with defaults from CONFIG
     const settings = await browser.storage.sync.get({
       theme: CONFIG.defaultSettings.theme,
-      layout: CONFIG.defaultSettings.layout,
       defaultSearch: CONFIG.defaultSettings.defaultSearch,
       newTab: CONFIG.defaultSettings.newTab,
       weatherEnabled: CONFIG.defaultSettings.weatherEnabled,
@@ -401,130 +423,59 @@ class SettingsPanel extends HTMLElement {
       weatherF: CONFIG.defaultSettings.weatherF,
       clockEnabled: CONFIG.defaultSettings.clockEnabled,
       clock24h: CONFIG.defaultSettings.clock24h,
-      clockShowDate: CONFIG.defaultSettings.clockShowDate,
-      commandsColumns: CONFIG.defaultSettings.commandsColumns,
-      commandsShowKeys: CONFIG.defaultSettings.commandsShowKeys,
-      commandsShowNames: CONFIG.defaultSettings.commandsShowNames
+      clockShowDate: CONFIG.defaultSettings.clockShowDate
     });
 
-    // Get all setting elements
     const elements = {
-      // Theme settings
       theme: this.shadowRoot.getElementById('theme'),
-      layout: this.shadowRoot.getElementById('layout'),
-
-      // Search settings
       defaultSearch: this.shadowRoot.getElementById('defaultSearch'),
       newTab: this.shadowRoot.getElementById('newTab'),
-
-      // Weather settings
       weatherEnabled: this.shadowRoot.getElementById('weatherEnabled'),
       weatherLocation: this.shadowRoot.getElementById('weatherLocation'),
       weatherF: this.shadowRoot.getElementById('weatherF'),
-
-      // Clock settings
       clockEnabled: this.shadowRoot.getElementById('clockEnabled'),
       clock24h: this.shadowRoot.getElementById('clock24h'),
-      clockShowDate: this.shadowRoot.getElementById('clockShowDate'),
-
-      // Commands settings
-      commandsColumns: this.shadowRoot.getElementById('commandsColumns'),
-      commandsShowKeys: this.shadowRoot.getElementById('commandsShowKeys'),
-      commandsShowNames: this.shadowRoot.getElementById('commandsShowNames'),
-
-      // Data management
-      exportBtn: this.shadowRoot.getElementById('exportData'),
-      importBtn: this.shadowRoot.getElementById('importData'),
-      resetBtn: this.shadowRoot.getElementById('resetData')
+      clockShowDate: this.shadowRoot.getElementById('clockShowDate')
     };
 
-    // Set initial values for all elements
     Object.entries(elements).forEach(([key, element]) => {
       if (!element) return;
-
       if (element.type === 'checkbox') {
         element.checked = settings[key];
-      } else if (element.tagName === 'SELECT' || element.type === 'text') {
+      } else {
         element.value = settings[key];
       }
     });
 
-
-
-    // Render deleted commands
-    const { deletedCommands = [] } = await browser.storage.sync.get('deletedCommands');
-    this.renderDeletedCommands(deletedCommands);
-    this.renderBuiltinCommands();
-
-    // Apply initial settings
     this.applyTheme(settings.theme);
-    this.applyLayout(settings.layout);
+    this.renderCommands();
   }
 
   setupEventListeners() {
-    // Get all elements
     const elements = {
-      // Theme settings
       theme: this.shadowRoot.getElementById('theme'),
-      layout: this.shadowRoot.getElementById('layout'),
-
-      // Search settings
       defaultSearch: this.shadowRoot.getElementById('defaultSearch'),
       newTab: this.shadowRoot.getElementById('newTab'),
-
-      // Weather settings
       weatherEnabled: this.shadowRoot.getElementById('weatherEnabled'),
       weatherLocation: this.shadowRoot.getElementById('weatherLocation'),
       weatherF: this.shadowRoot.getElementById('weatherF'),
-
-      // Clock settings
       clockEnabled: this.shadowRoot.getElementById('clockEnabled'),
       clock24h: this.shadowRoot.getElementById('clock24h'),
-      clockShowDate: this.shadowRoot.getElementById('clockShowDate'),
-
-      // Commands settings
-      commandsColumns: this.shadowRoot.getElementById('commandsColumns'),
-      commandsShowKeys: this.shadowRoot.getElementById('commandsShowKeys'),
-      commandsShowNames: this.shadowRoot.getElementById('commandsShowNames'),
-
-      // Data management
-      exportBtn: this.shadowRoot.getElementById('exportData'),
-      importBtn: this.shadowRoot.getElementById('importData'),
-      resetBtn: this.shadowRoot.getElementById('resetData')
+      clockShowDate: this.shadowRoot.getElementById('clockShowDate')
     };
 
-    // Theme handling
     elements.theme?.addEventListener('change', (e) => {
-      this.setTheme(e.target.value);
+      this.applyTheme(e.target.value);
+      browser.storage.sync.set({ theme: e.target.value });
     });
 
-    // Layout handling
-    elements.layout?.addEventListener('change', (e) => {
-      this.setLayout(e.target.value);
-    });
-
-    // Add event listeners for all checkbox and select elements
     Object.entries(elements).forEach(([key, element]) => {
-      if (!element || ['exportBtn', 'importBtn', 'resetBtn', 'addTodoCategory', 'addRssFeed'].includes(key)) return;
-
+      if (!element || key === 'theme') return;
       element.addEventListener('change', (e) => {
         const value = e.target.type === 'checkbox' ? e.target.checked : e.target.value;
-        console.log(`Setting ${key} to:`, value); // Debug log
         browser.storage.sync.set({ [key]: value });
       });
     });
-
-    // Data management
-    elements.exportBtn?.addEventListener('click', () => this.exportSettings());
-    elements.importBtn?.addEventListener('click', () => this.importSettings());
-    elements.resetBtn?.addEventListener('click', () => this.resetSettings());
-
-
-  }
-
-  setTheme(theme) {
-    this.applyTheme(theme);
-    browser.storage.sync.set({ theme });
   }
 
   applyTheme(theme) {
@@ -535,52 +486,74 @@ class SettingsPanel extends HTMLElement {
     }
   }
 
-  setLayout(layout) {
-    this.applyLayout(layout);
-    browser.storage.sync.set({ layout });
-  }
+  async setupCustomCommands() {
+    await new Promise(resolve => requestAnimationFrame(resolve));
 
-  applyLayout(layout) {
-    document.documentElement.setAttribute('data-layout', layout);
-    // Dispatch event for other components to update their layout
-    window.dispatchEvent(new CustomEvent('layoutchange', { detail: { layout } }));
-  }
+    const form = this.shadowRoot.getElementById('addCommandForm');
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const key = this.shadowRoot.getElementById('commandKey').value.trim().toLowerCase();
+      const name = this.shadowRoot.getElementById('commandName').value;
+      const url = this.shadowRoot.getElementById('commandUrl').value;
 
-  async exportSettings() {
-    const settings = await browser.storage.sync.get();
-    const blob = new Blob([JSON.stringify(settings, null, 2)], { type: 'application/json' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = 'startpage-settings.json';
-    a.click();
-    URL.revokeObjectURL(url);
-  }
-
-  importSettings() {
-    const input = document.createElement('input');
-    input.type = 'file';
-    input.accept = 'application/json';
-    input.onchange = async (e) => {
-      try {
-        const file = e.target.files[0];
-        const text = await file.text();
-        const settings = JSON.parse(text);
-        await browser.storage.sync.set(settings);
-        this.loadSettings(); // Reload settings without page refresh
-      } catch (error) {
-        console.error('Failed to import settings:', error);
-        alert('Failed to import settings. Please check the file format.');
+      if (COMMANDS.has(key)) {
+        alert(`Key '${key}' already exists.`);
+        return;
       }
-    };
-    input.click();
+
+      const { customCommands = {} } = await browser.storage.sync.get('customCommands');
+      customCommands[key] = { name, url };
+      await browser.storage.sync.set({ customCommands });
+      this.renderCommands();
+      form.reset();
+    });
   }
 
-  async resetSettings() {
-    if (confirm('Are you sure you want to reset all settings?')) {
-      await browser.storage.sync.set(CONFIG.defaultSettings);
-      this.loadSettings();
+  async renderCommands() {
+    const list = this.shadowRoot.getElementById('commandsList');
+    if (!list) return;
+
+    const { deletedCommands = [] } = await browser.storage.sync.get('deletedCommands');
+    const { customCommands = {} } = await browser.storage.sync.get('customCommands');
+
+    // Combine built-in (non-deleted) and custom commands
+    const allCommands = [];
+
+    for (const [key, cmd] of COMMANDS) {
+      if (!deletedCommands.includes(key)) {
+        allCommands.push({ key, ...cmd, isBuiltin: true });
+      }
     }
+
+    for (const [key, cmd] of Object.entries(customCommands)) {
+      allCommands.push({ key, ...cmd, isBuiltin: false });
+    }
+
+    list.innerHTML = allCommands.map(cmd => `
+      <div class="command-item" data-key="${cmd.key}" data-builtin="${cmd.isBuiltin}">
+        <span class="command-key">${cmd.key}</span>
+        <span class="command-name">${cmd.name}</span>
+        <button class="delete-btn" title="Delete">×</button>
+      </div>
+    `).join('');
+
+    list.querySelectorAll('.delete-btn').forEach(btn => {
+      btn.addEventListener('click', async () => {
+        const item = btn.closest('.command-item');
+        const key = item.dataset.key;
+        const isBuiltin = item.dataset.builtin === 'true';
+
+        if (isBuiltin) {
+          const { deletedCommands = [] } = await browser.storage.sync.get('deletedCommands');
+          await browser.storage.sync.set({ deletedCommands: [...deletedCommands, key] });
+        } else {
+          const { customCommands = {} } = await browser.storage.sync.get('customCommands');
+          delete customCommands[key];
+          await browser.storage.sync.set({ customCommands });
+        }
+        this.renderCommands();
+      });
+    });
   }
 
   toggle() {
@@ -596,198 +569,6 @@ class SettingsPanel extends HTMLElement {
       panel.classList.remove('open');
     }
   }
-
-  async setupCustomSearchEngines() {
-    // Wait for DOM to be ready
-    await new Promise(resolve => requestAnimationFrame(resolve));
-
-    const { customSearchEngines = {} } = await browser.storage.sync.get('customSearchEngines');
-    this.renderCustomSearchEngines(customSearchEngines);
-
-    // Add search engine form
-    const form = this.shadowRoot.getElementById('addSearchForm');
-    form.addEventListener('submit', async (e) => {
-      e.preventDefault();
-      const name = this.shadowRoot.getElementById('searchName').value;
-      const url = this.shadowRoot.getElementById('searchUrl').value;
-
-      const { customSearchEngines = {} } = await browser.storage.sync.get('customSearchEngines');
-      const key = name.toLowerCase().replace(/\s+/g, '-');
-
-      customSearchEngines[key] = {
-        name,
-        template: url,
-      };
-
-      await browser.storage.sync.set({ customSearchEngines });
-      this.renderCustomSearchEngines(customSearchEngines);
-      form.reset();
-    });
-  }
-
-  async renderCustomSearchEngines(engines) {
-    const list = this.shadowRoot.getElementById('customSearchList');
-    const optgroup = this.shadowRoot.getElementById('customSearchOptions');
-    list.innerHTML = '';
-    optgroup.innerHTML = '';
-
-    for (const [key, engine] of Object.entries(engines)) {
-      // Add to list
-      const li = document.createElement('li');
-      li.className = 'custom-search-item';
-      li.innerHTML = `
-        <span>${engine.name}</span>
-        <button type="button" data-key="${key}">Remove</button>
-      `;
-      list.appendChild(li);
-
-      // Add to select options
-      const option = document.createElement('option');
-      option.value = key;
-      option.textContent = engine.name;
-      optgroup.appendChild(option);
-    }
-
-    // Add remove handlers
-    list.querySelectorAll('button').forEach(btn => {
-      btn.addEventListener('click', async () => {
-        const key = btn.dataset.key;
-        const { customSearchEngines = {} } = await browser.storage.sync.get('customSearchEngines');
-        delete customSearchEngines[key];
-        await browser.storage.sync.set({ customSearchEngines });
-        this.renderCustomSearchEngines(customSearchEngines);
-      });
-    });
-  }
-
-  async setupCustomCommands() {
-    // Wait for DOM to be ready
-    await new Promise(resolve => requestAnimationFrame(resolve));
-
-    const { customCommands = {} } = await browser.storage.sync.get('customCommands');
-    this.renderCustomCommands(customCommands);
-
-    // Add command form
-    const form = this.shadowRoot.getElementById('addCommandForm');
-    form.addEventListener('submit', async (e) => {
-      e.preventDefault();
-      const key = this.shadowRoot.getElementById('commandKey').value.trim();
-      const name = this.shadowRoot.getElementById('commandName').value;
-      const url = this.shadowRoot.getElementById('commandUrl').value;
-      const searchTemplate = this.shadowRoot.getElementById('commandSearchTemplate').value;
-
-      const { customCommands = {} } = await browser.storage.sync.get('customCommands');
-
-      // Check if key already exists in built-in commands
-      if (COMMANDS.has(key)) {
-        alert(`Command key '${key}' already exists in built-in commands.`);
-        return;
-      }
-
-      customCommands[key] = {
-        name,
-        url,
-        ...(searchTemplate && { searchTemplate })
-      };
-
-      await browser.storage.sync.set({ customCommands });
-      this.renderCustomCommands(customCommands);
-      form.reset();
-    });
-  }
-
-  async renderCustomCommands(commands) {
-    const list = this.shadowRoot.getElementById('customCommandList');
-    list.innerHTML = '';
-
-    for (const [key, command] of Object.entries(commands)) {
-      const li = document.createElement('li');
-      li.className = 'custom-item';
-      li.innerHTML = `
-        <span class="command-key">${key}</span>
-        <span>${command.name}</span>
-        ${command.searchTemplate ? '<span>(with search)</span>' : ''}
-        <button type="button" data-key="${key}">Remove</button>
-      `;
-      list.appendChild(li);
-    }
-
-    // Add remove handlers
-    list.querySelectorAll('button').forEach(btn => {
-      btn.addEventListener('click', async () => {
-        const key = btn.dataset.key;
-        const { customCommands = {} } = await browser.storage.sync.get('customCommands');
-        delete customCommands[key];
-        await browser.storage.sync.set({ customCommands });
-        this.renderCustomCommands(customCommands);
-      });
-    });
-  }
-
-
-
-  async renderDeletedCommands(deletedCommands) {
-    const container = this.shadowRoot.getElementById('hiddenCommandsList');
-    if (!container) return;
-
-    container.innerHTML = deletedCommands.map(key => {
-      const command = COMMANDS.get(key);
-      if (!command) return '';
-      return `
-        <div class="custom-item">
-          <span class="command-key">${key}</span>
-          <span>${command.name}</span>
-          <button type="button" data-key="${key}">Restore Command</button>
-        </div>
-      `;
-    }).join('');
-
-    // Add restore handlers
-    container.querySelectorAll('button').forEach(btn => {
-      btn.addEventListener('click', async () => {
-        const key = btn.dataset.key;
-        const { deletedCommands = [] } = await browser.storage.sync.get('deletedCommands');
-        const newDeletedCommands = deletedCommands.filter(k => k !== key);
-        await browser.storage.sync.set({ deletedCommands: newDeletedCommands });
-        this.renderDeletedCommands(newDeletedCommands);
-        this.renderBuiltinCommands();
-      });
-    });
-  }
-
-  async renderBuiltinCommands() {
-    const container = this.shadowRoot.getElementById('builtinCommandsList');
-    if (!container) return;
-
-    // Get deleted commands
-    const { deletedCommands = [] } = await browser.storage.sync.get('deletedCommands');
-
-    container.innerHTML = Array.from(COMMANDS)
-      .filter(([key]) => !deletedCommands.includes(key))
-      .map(([key, command]) => `
-        <div class="custom-item">
-          <span class="command-key">${key}</span>
-          <span>${command.name}</span>
-          <span>${command.url}</span>
-          ${command.searchTemplate ? '<span>(with search)</span>' : ''}
-          <button type="button" data-key="${key}">Delete</button>
-        </div>
-      `).join('');
-
-    // Add delete handlers
-    container.querySelectorAll('button').forEach(btn => {
-      btn.addEventListener('click', async () => {
-        const key = btn.dataset.key;
-        const { deletedCommands = [] } = await browser.storage.sync.get('deletedCommands');
-        if (!deletedCommands.includes(key)) {
-          const newDeletedCommands = [...deletedCommands, key];
-          await browser.storage.sync.set({ deletedCommands: newDeletedCommands });
-          this.renderDeletedCommands(newDeletedCommands);
-          this.renderBuiltinCommands();
-        }
-      });
-    });
-  }
 }
 
-customElements.define('settings-panel', SettingsPanel); 
+customElements.define('settings-panel', SettingsPanel);
