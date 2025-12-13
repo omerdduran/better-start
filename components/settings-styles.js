@@ -510,4 +510,52 @@ const SETTINGS_STYLES = `
           background: #dc3545;
           color: white;
         }
+
+        /* Location Autocomplete */
+        .location-wrapper {
+          position: relative;
+          flex: 1;
+        }
+
+        .location-suggestions {
+          display: none;
+          position: absolute;
+          top: 100%;
+          left: 0;
+          right: 0;
+          background: var(--color-background);
+          border: 1px solid rgba(136, 136, 136, 0.3);
+          border-top: none;
+          border-radius: 0 0 6px 6px;
+          max-height: 200px;
+          overflow-y: auto;
+          z-index: 100;
+          box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+        }
+
+        .location-suggestions.visible {
+          display: block;
+        }
+
+        .location-suggestion {
+          padding: 0.5rem 0.75rem;
+          cursor: pointer;
+          font-size: 0.85rem;
+          color: var(--color-text);
+          border-bottom: 1px solid rgba(136, 136, 136, 0.1);
+        }
+
+        .location-suggestion:last-child {
+          border-bottom: none;
+        }
+
+        .location-suggestion:hover {
+          background: rgba(136, 136, 136, 0.15);
+        }
+
+        .location-suggestion .country {
+          color: var(--color-text-subtle);
+          font-size: 0.75rem;
+          margin-left: 0.5rem;
+        }
 `;

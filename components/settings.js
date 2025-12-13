@@ -48,19 +48,45 @@ class SettingsPanel extends HTMLElement {
           </div>
 
           <div class="option" style="display: flex; align-items: center; gap: 0.5rem;">
-            <input type="text" id="weatherLocation" placeholder="Location (auto-detect if empty)" style="flex: 1;">
+            <div class="location-wrapper">
+              <input type="text" id="weatherLocation" placeholder="Location (auto-detect if empty)" autocomplete="off">
+              <div class="location-suggestions" id="locationSuggestions"></div>
+            </div>
             <span class="info-wrapper">
               <button type="button" class="info-btn">?</button>
               <div class="info-tooltip">
                 <h4>Weather Location</h4>
                 <ul>
                   <li>Leave empty to auto-detect your location</li>
-                  <li>Enter city name: <code>London</code></li>
-                  <li>City + country: <code>Paris, FR</code></li>
+                  <li>Start typing to see suggestions</li>
                   <li>Uses free wttr.in API</li>
                 </ul>
               </div>
             </span>
+          </div>
+
+          <div class="option">
+            <span class="option-label">💧 Humidity</span>
+            <label class="toggle">
+              <input type="checkbox" id="weatherHumidity">
+              <span class="toggle-slider"></span>
+            </label>
+          </div>
+
+          <div class="option">
+            <span class="option-label">💨 Wind</span>
+            <label class="toggle">
+              <input type="checkbox" id="weatherWind">
+              <span class="toggle-slider"></span>
+            </label>
+          </div>
+
+          <div class="option">
+            <span class="option-label">☀️ UV Index</span>
+            <label class="toggle">
+              <input type="checkbox" id="weatherUV">
+              <span class="toggle-slider"></span>
+            </label>
           </div>
 
           <div class="option">
@@ -320,6 +346,9 @@ class SettingsPanel extends HTMLElement {
       weatherEnabled: CONFIG.defaultSettings.weatherEnabled,
       weatherLocation: CONFIG.defaultSettings.weatherLocation,
       weatherF: CONFIG.defaultSettings.weatherF,
+      weatherHumidity: CONFIG.defaultSettings.weatherHumidity,
+      weatherWind: CONFIG.defaultSettings.weatherWind,
+      weatherUV: CONFIG.defaultSettings.weatherUV,
       clockEnabled: CONFIG.defaultSettings.clockEnabled,
       clock24h: CONFIG.defaultSettings.clock24h,
       clockShowDate: CONFIG.defaultSettings.clockShowDate,
@@ -333,6 +362,9 @@ class SettingsPanel extends HTMLElement {
       weatherEnabled: this.shadowRoot.getElementById('weatherEnabled'),
       weatherLocation: this.shadowRoot.getElementById('weatherLocation'),
       weatherF: this.shadowRoot.getElementById('weatherF'),
+      weatherHumidity: this.shadowRoot.getElementById('weatherHumidity'),
+      weatherWind: this.shadowRoot.getElementById('weatherWind'),
+      weatherUV: this.shadowRoot.getElementById('weatherUV'),
       clockEnabled: this.shadowRoot.getElementById('clockEnabled'),
       clock24h: this.shadowRoot.getElementById('clock24h'),
       clockShowDate: this.shadowRoot.getElementById('clockShowDate'),
@@ -360,6 +392,9 @@ class SettingsPanel extends HTMLElement {
       weatherEnabled: this.shadowRoot.getElementById('weatherEnabled'),
       weatherLocation: this.shadowRoot.getElementById('weatherLocation'),
       weatherF: this.shadowRoot.getElementById('weatherF'),
+      weatherHumidity: this.shadowRoot.getElementById('weatherHumidity'),
+      weatherWind: this.shadowRoot.getElementById('weatherWind'),
+      weatherUV: this.shadowRoot.getElementById('weatherUV'),
       clockEnabled: this.shadowRoot.getElementById('clockEnabled'),
       clock24h: this.shadowRoot.getElementById('clock24h'),
       clockShowDate: this.shadowRoot.getElementById('clockShowDate'),
@@ -390,6 +425,62 @@ class SettingsPanel extends HTMLElement {
         const matches = key.includes(query) || name.includes(query);
         item.style.display = matches ? '' : 'none';
       });
+    });
+
+    // Location autocomplete
+    const locationInput = this.shadowRoot.getElementById('weatherLocation');
+    const suggestionsEl = this.shadowRoot.getElementById('locationSuggestions');
+    let debounceTimer = null;
+
+    locationInput?.addEventListener('input', async (e) => {
+      const query = e.target.value.trim();
+
+      // Clear previous timer
+      if (debounceTimer) clearTimeout(debounceTimer);
+
+      // Hide suggestions if query is short
+      if (query.length < 2) {
+        suggestionsEl.classList.remove('visible');
+        return;
+      }
+
+      // Debounce API call
+      debounceTimer = setTimeout(async () => {
+        try {
+          const response = await fetch(
+            `https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(query)}&count=5&language=en&format=json`
+          );
+          const data = await response.json();
+
+          if (data.results && data.results.length > 0) {
+            suggestionsEl.innerHTML = data.results.map(r => `
+              <div class="location-suggestion" data-name="${r.name}, ${r.country}">
+                ${r.name}<span class="country">${r.country}</span>
+              </div>
+            `).join('');
+            suggestionsEl.classList.add('visible');
+
+            // Add click handlers
+            suggestionsEl.querySelectorAll('.location-suggestion').forEach(suggestion => {
+              suggestion.addEventListener('click', () => {
+                locationInput.value = suggestion.dataset.name;
+                suggestionsEl.classList.remove('visible');
+                browser.storage.sync.set({ weatherLocation: suggestion.dataset.name });
+              });
+            });
+          } else {
+            suggestionsEl.classList.remove('visible');
+          }
+        } catch (error) {
+          console.error('Location search error:', error);
+          suggestionsEl.classList.remove('visible');
+        }
+      }, 300);
+    });
+
+    // Hide suggestions on blur (with delay for click)
+    locationInput?.addEventListener('blur', () => {
+      setTimeout(() => suggestionsEl.classList.remove('visible'), 200);
     });
   }
 
