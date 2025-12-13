@@ -31,7 +31,7 @@ const CONFIG = {
     clockEnabled: true,
     clock24h: false,
     clockShowDate: true,
-    commandsColumns: 3
+    commandsColumns: 4
   }
 };
 

@@ -231,6 +231,32 @@ class SettingsPanel extends HTMLElement {
           border-bottom: none;
         }
 
+        .command-item.dragging {
+          opacity: 0.5;
+          background: rgba(136, 136, 136, 0.1);
+        }
+
+        .command-item.drag-over {
+          border-top: 2px solid var(--color-accent);
+        }
+
+        .drag-handle {
+          cursor: grab;
+          color: var(--color-text-subtle);
+          opacity: 0.4;
+          font-size: 0.9rem;
+          padding: 0.25rem;
+          user-select: none;
+        }
+
+        .drag-handle:hover {
+          opacity: 0.8;
+        }
+
+        .drag-handle:active {
+          cursor: grabbing;
+        }
+
         .command-key {
           background: rgba(136, 136, 136, 0.15);
           border-radius: 4px;
@@ -438,6 +464,71 @@ class SettingsPanel extends HTMLElement {
           font-size: 0.7rem;
           margin-left: 0.25rem;
         }
+
+        /* Confirm Modal */
+        .confirm-modal {
+          display: none;
+          position: fixed;
+          top: 0;
+          left: 0;
+          right: 0;
+          bottom: 0;
+          background: rgba(0, 0, 0, 0.6);
+          z-index: 2000;
+          align-items: center;
+          justify-content: center;
+        }
+
+        .confirm-modal.visible {
+          display: flex;
+        }
+
+        .confirm-box {
+          background: var(--color-background);
+          border-radius: 12px;
+          padding: 1.5rem;
+          max-width: 350px;
+          text-align: center;
+          box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+        }
+
+        .confirm-box h3 {
+          margin: 0 0 0.75rem;
+          color: var(--color-text);
+          font-size: 1rem;
+        }
+
+        .confirm-box p {
+          margin: 0 0 1.25rem;
+          color: var(--color-text-subtle);
+          font-size: 0.85rem;
+          line-height: 1.4;
+        }
+
+        .confirm-buttons {
+          display: flex;
+          gap: 0.75rem;
+        }
+
+        .confirm-buttons button {
+          flex: 1;
+          padding: 0.6rem 1rem;
+          border: none;
+          border-radius: 6px;
+          font-size: 0.85rem;
+          font-weight: 500;
+          cursor: pointer;
+        }
+
+        .confirm-cancel {
+          background: rgba(136, 136, 136, 0.3);
+          color: var(--color-text);
+        }
+
+        .confirm-ok {
+          background: #dc3545;
+          color: white;
+        }
       </style>
 
       <div class="settings-panel">
@@ -466,8 +557,20 @@ class SettingsPanel extends HTMLElement {
             </label>
           </div>
 
-          <div class="option">
-            <input type="text" id="weatherLocation" placeholder="Location (auto-detect if empty)">
+          <div class="option" style="display: flex; align-items: center; gap: 0.5rem;">
+            <input type="text" id="weatherLocation" placeholder="Location (auto-detect if empty)" style="flex: 1;">
+            <span class="info-wrapper">
+              <button type="button" class="info-btn">?</button>
+              <div class="info-tooltip">
+                <h4>Weather Location</h4>
+                <ul>
+                  <li>Leave empty to auto-detect your location</li>
+                  <li>Enter city name: <code>London</code></li>
+                  <li>City + country: <code>Paris, FR</code></li>
+                  <li>Uses free wttr.in API</li>
+                </ul>
+              </div>
+            </span>
           </div>
 
           <div class="option">
@@ -582,6 +685,23 @@ class SettingsPanel extends HTMLElement {
             <button type="button" class="add-btn" id="importSettings" style="flex: 1; background: rgba(136, 136, 136, 0.3);">Import</button>
           </div>
         </div>
+
+        <!-- Reset Section -->
+        <div class="section" style="margin-top: 1rem; padding-top: 1rem; border-top: 1px solid rgba(136, 136, 136, 0.2);">
+          <button type="button" class="add-btn" id="resetSettings" style="width: 100%; background: #dc3545;">Reset to Default</button>
+        </div>
+      </div>
+
+      <!-- Confirm Modal -->
+      <div class="confirm-modal" id="confirmModal">
+        <div class="confirm-box">
+          <h3>Reset Settings?</h3>
+          <p>This will remove all your custom links, preferences, and ordering. This action cannot be undone.</p>
+          <div class="confirm-buttons">
+            <button class="confirm-cancel" id="confirmCancel">Cancel</button>
+            <button class="confirm-ok" id="confirmOk">Reset</button>
+          </div>
+        </div>
       </div>
     `;
 
@@ -621,6 +741,24 @@ class SettingsPanel extends HTMLElement {
         }
       };
       input.click();
+    });
+
+    // Reset to default settings - using custom modal for Firefox compatibility
+    const confirmModal = this.shadowRoot.getElementById('confirmModal');
+    const confirmCancel = this.shadowRoot.getElementById('confirmCancel');
+    const confirmOk = this.shadowRoot.getElementById('confirmOk');
+
+    this.shadowRoot.getElementById('resetSettings').addEventListener('click', () => {
+      confirmModal.classList.add('visible');
+    });
+
+    confirmCancel.addEventListener('click', () => {
+      confirmModal.classList.remove('visible');
+    });
+
+    confirmOk.addEventListener('click', async () => {
+      await browser.storage.sync.clear();
+      location.reload();
     });
   }
 
@@ -781,8 +919,8 @@ class SettingsPanel extends HTMLElement {
     const list = this.shadowRoot.getElementById('commandsList');
     if (!list) return;
 
-    const { deletedCommands = [] } = await browser.storage.sync.get('deletedCommands');
-    const { customCommands = {} } = await browser.storage.sync.get('customCommands');
+    const { deletedCommands = [], customCommands = {}, commandsOrder = [] } =
+      await browser.storage.sync.get(['deletedCommands', 'customCommands', 'commandsOrder']);
 
     // Combine built-in (non-deleted) and custom commands
     const allCommands = [];
@@ -797,17 +935,32 @@ class SettingsPanel extends HTMLElement {
       allCommands.push({ key, ...cmd, isBuiltin: false });
     }
 
+    // Sort by saved order (if exists), otherwise keep as-is
+    if (commandsOrder.length > 0) {
+      allCommands.sort((a, b) => {
+        const indexA = commandsOrder.indexOf(a.key);
+        const indexB = commandsOrder.indexOf(b.key);
+        // Items not in order go to end
+        if (indexA === -1 && indexB === -1) return 0;
+        if (indexA === -1) return 1;
+        if (indexB === -1) return -1;
+        return indexA - indexB;
+      });
+    }
+
     list.innerHTML = allCommands.map(cmd => {
       const icons = [];
       if (cmd.searchTemplate) icons.push('🔍');
       if (cmd.suggestions?.length) icons.push('📋');
       const iconStr = icons.length ? ` <em style="opacity:0.5; font-size:0.7rem">${icons.join('')}</em>` : '';
+      const isVisible = !!cmd.name; // Has name = visible in grid = can be reordered
 
       return `
-        <div class="command-item" data-key="${cmd.key}" data-builtin="${cmd.isBuiltin}" 
+        <div class="command-item" draggable="${isVisible}" data-key="${cmd.key}" data-builtin="${cmd.isBuiltin}" 
              data-name="${cmd.name || ''}" data-url="${cmd.url || ''}" 
              data-template="${cmd.searchTemplate || ''}" 
              data-suggestions="${(cmd.suggestions || []).join(',')}">
+          ${isVisible ? '<span class="drag-handle" title="Drag to reorder">⋮⋮</span>' : ''}
           <span class="command-key">${cmd.key}</span>
           <span class="command-name">${cmd.name || '<em style="opacity:0.5">hidden</em>'}${iconStr}</span>
           <div class="command-actions">
@@ -817,6 +970,57 @@ class SettingsPanel extends HTMLElement {
         </div>
       `;
     }).join('');
+
+    // Drag and drop handlers
+    let draggedItem = null;
+
+    list.querySelectorAll('.command-item').forEach(item => {
+      item.addEventListener('dragstart', (e) => {
+        draggedItem = item;
+        item.classList.add('dragging');
+        e.dataTransfer.effectAllowed = 'move';
+      });
+
+      item.addEventListener('dragend', () => {
+        item.classList.remove('dragging');
+        list.querySelectorAll('.command-item').forEach(i => i.classList.remove('drag-over'));
+        draggedItem = null;
+      });
+
+      item.addEventListener('dragover', (e) => {
+        e.preventDefault();
+        if (draggedItem && draggedItem !== item) {
+          item.classList.add('drag-over');
+        }
+      });
+
+      item.addEventListener('dragleave', () => {
+        item.classList.remove('drag-over');
+      });
+
+      item.addEventListener('drop', async (e) => {
+        e.preventDefault();
+        item.classList.remove('drag-over');
+
+        if (draggedItem && draggedItem !== item) {
+          // Determine if dropping above or below the target based on mouse position
+          const rect = item.getBoundingClientRect();
+          const midY = rect.top + rect.height / 2;
+
+          if (e.clientY < midY) {
+            // Drop on top half -> insert before
+            item.before(draggedItem);
+          } else {
+            // Drop on bottom half -> insert after
+            item.after(draggedItem);
+          }
+
+          // Save new order
+          const newOrder = [...list.querySelectorAll('.command-item')].map(i => i.dataset.key);
+          await browser.storage.sync.set({ commandsOrder: newOrder });
+        }
+      });
+    });
 
     // Edit button handlers
     list.querySelectorAll('.edit-btn').forEach(btn => {

@@ -91,9 +91,28 @@ class Commands extends HTMLElement {
       this.#commands.set(key, command);
     }
 
-    // Load columns setting
-    const { commandsColumns = 3 } = await browser.storage.sync.get('commandsColumns');
+    // Load columns setting and order
+    const { commandsColumns = 4, commandsOrder = [] } =
+      await browser.storage.sync.get(['commandsColumns', 'commandsOrder']);
     this.#columns = commandsColumns;
+
+    // Apply order if exists
+    if (commandsOrder.length > 0) {
+      const orderedCommands = new Map();
+      // First add ordered items
+      for (const key of commandsOrder) {
+        if (this.#commands.has(key)) {
+          orderedCommands.set(key, this.#commands.get(key));
+        }
+      }
+      // Then add any remaining items not in order
+      for (const [key, cmd] of this.#commands) {
+        if (!orderedCommands.has(key)) {
+          orderedCommands.set(key, cmd);
+        }
+      }
+      this.#commands = orderedCommands;
+    }
 
     this.render();
   }
@@ -122,7 +141,7 @@ class Commands extends HTMLElement {
   }
 
   #onStorageChange = (changes) => {
-    if (changes.customCommands || changes.deletedCommands || changes.commandsColumns) {
+    if (changes.customCommands || changes.deletedCommands || changes.commandsColumns || changes.commandsOrder) {
       this.loadCommands();
     }
   };
