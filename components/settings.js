@@ -113,6 +113,14 @@ class SettingsPanel extends HTMLElement {
             </label>
           </div>
 
+          <div class="option">
+            <span class="option-label">Show seconds</span>
+            <label class="toggle">
+              <input type="checkbox" id="clockShowSeconds">
+              <span class="toggle-slider"></span>
+            </label>
+          </div>
+
           <div class="option" style="align-items: flex-start; flex-direction: column; gap: 0.25rem;">
             <div style="display: flex; justify-content: space-between; width: 100%; align-items: center; gap: 0.5rem;">
               <span class="option-label">Secondary time zones</span>
@@ -440,6 +448,7 @@ class SettingsPanel extends HTMLElement {
       clockEnabled: CONFIG.defaultSettings.clockEnabled,
       clock24h: CONFIG.defaultSettings.clock24h,
       clockShowDate: CONFIG.defaultSettings.clockShowDate,
+      clockShowSeconds: CONFIG.defaultSettings.clockShowSeconds,
       clockSecondaryTimezones: CONFIG.defaultSettings.clockSecondaryTimezones,
       commandsColumns: CONFIG.defaultSettings.commandsColumns,
       customThemeBackground: '',
@@ -463,6 +472,7 @@ class SettingsPanel extends HTMLElement {
       clockEnabled: this.shadowRoot.getElementById('clockEnabled'),
       clock24h: this.shadowRoot.getElementById('clock24h'),
       clockShowDate: this.shadowRoot.getElementById('clockShowDate'),
+      clockShowSeconds: this.shadowRoot.getElementById('clockShowSeconds'),
       clockSecondaryTimezones: this.shadowRoot.getElementById('clockSecondaryTimezones'),
       commandsColumns: this.shadowRoot.getElementById('commandsColumns')
     };
@@ -508,6 +518,7 @@ class SettingsPanel extends HTMLElement {
       clockEnabled: this.shadowRoot.getElementById('clockEnabled'),
       clock24h: this.shadowRoot.getElementById('clock24h'),
       clockShowDate: this.shadowRoot.getElementById('clockShowDate'),
+      clockShowSeconds: this.shadowRoot.getElementById('clockShowSeconds'),
       clockSecondaryTimezones: this.shadowRoot.getElementById('clockSecondaryTimezones'),
       commandsColumns: this.shadowRoot.getElementById('commandsColumns')
     };

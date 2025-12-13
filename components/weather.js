@@ -28,6 +28,8 @@ class WeatherWidget extends HTMLElement {
           opacity: 0.8;
           transition: opacity var(--transition-speed);
           cursor: default;
+          user-select: none;
+          -webkit-user-select: none;
         }
         .weather:hover {
           opacity: 1;

@@ -19,6 +19,8 @@ commandsTemplate.innerHTML = `
       padding: var(--space);
       position: relative;
       text-decoration: none;
+      user-select: none;
+      -webkit-user-select: none;
     }
 
     .command::after {

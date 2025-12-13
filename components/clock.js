@@ -3,6 +3,7 @@ class ClockWidget extends HTMLElement {
     enabled: true,
     use24h: false,
     showDate: true,
+    showSeconds: false,
     secondaryTimezones: []
   };
   #updateInterval;
@@ -34,6 +35,8 @@ class ClockWidget extends HTMLElement {
           text-align: right;
           opacity: 0.8;
           transition: opacity var(--transition-speed);
+          user-select: none;
+          -webkit-user-select: none;
         }
         .clock:hover {
           opacity: 1;
@@ -85,6 +88,7 @@ class ClockWidget extends HTMLElement {
       clockEnabled: CONFIG.defaultSettings.clockEnabled,
       clock24h: CONFIG.defaultSettings.clock24h,
       clockShowDate: CONFIG.defaultSettings.clockShowDate,
+      clockShowSeconds: CONFIG.defaultSettings.clockShowSeconds,
       clockSecondaryTimezones: CONFIG.defaultSettings.clockSecondaryTimezones
     });
 
@@ -92,6 +96,7 @@ class ClockWidget extends HTMLElement {
       enabled: settings.clockEnabled,
       use24h: settings.clock24h,
       showDate: settings.clockShowDate,
+      showSeconds: settings.clockShowSeconds,
       secondaryTimezones: this.#parseSecondaryTimezones(settings.clockSecondaryTimezones)
     };
 
@@ -135,11 +140,17 @@ class ClockWidget extends HTMLElement {
 
     if (time && date) {
       // Update time with format preference
-      time.textContent = now.toLocaleTimeString([], {
+      const options = {
         hour: '2-digit',
         minute: '2-digit',
         hour12: !this.#settings.use24h
-      });
+      };
+
+      if (this.#settings.showSeconds) {
+        options.second = '2-digit';
+      }
+
+      time.textContent = now.toLocaleTimeString([], options);
 
       // Show/hide date based on settings
       date.style.display = this.#settings.showDate ? 'block' : 'none';
@@ -201,7 +212,7 @@ class ClockWidget extends HTMLElement {
   }
 
   #onStorageChange = (changes) => {
-    if (changes.clockEnabled || changes.clock24h || changes.clockShowDate || changes.clockSecondaryTimezones) {
+    if (changes.clockEnabled || changes.clock24h || changes.clockShowDate || changes.clockShowSeconds || changes.clockSecondaryTimezones) {
       this.loadSettings();
     }
   };
