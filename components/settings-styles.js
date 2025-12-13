@@ -379,6 +379,38 @@ const SETTINGS_STYLES = `
           margin: 0 0 0.5rem 0;
         }
 
+        /* Custom theme editor */
+        .custom-theme-editor {
+          display: none;
+          margin-top: 0.5rem;
+        }
+
+        .custom-theme-editor.open {
+          display: grid;
+          gap: 0.5rem;
+        }
+
+        .custom-theme-row {
+          display: flex;
+          align-items: center;
+          gap: 0.5rem;
+        }
+
+        .custom-theme-row label {
+          color: var(--color-text-subtle);
+          font-size: 0.8rem;
+          min-width: 90px;
+        }
+
+        .custom-theme-row input[type="color"] {
+          width: 32px;
+          height: 24px;
+          padding: 0;
+          border-radius: 4px;
+          border: 1px solid rgba(136, 136, 136, 0.4);
+          background: transparent;
+        }
+
         /* Info tooltip */
         .info-wrapper {
           position: relative;

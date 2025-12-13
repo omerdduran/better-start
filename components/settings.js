@@ -229,6 +229,7 @@ class SettingsPanel extends HTMLElement {
               <option value="dark">Dark</option>
               <option value="catppuccin">Catppuccin</option>
               <option value="high-contrast">High Contrast</option>
+              <option value="custom">Custom</option>
             </select>
           </div>
 
@@ -243,6 +244,48 @@ class SettingsPanel extends HTMLElement {
               <input type="checkbox" id="settingsIconHoverOnly">
               <span class="toggle-slider"></span>
             </label>
+          </div>
+
+          <div class="subsection">
+            <h4 class="subsection-title">Advanced theme editor</h4>
+            <button
+              type="button"
+              class="add-btn"
+              id="toggleCustomTheme"
+              style="width: 100%; background: rgba(136, 136, 136, 0.3); font-size: 0.8rem;"
+            >
+              Show advanced theme editor
+            </button>
+            <div class="custom-theme-editor" id="customThemeEditor">
+              <div class="custom-theme-row">
+                <label for="customThemeBackground">Background</label>
+                <input type="color" id="customThemeBackground">
+              </div>
+              <div class="custom-theme-row">
+                <label for="customThemeText">Text</label>
+                <input type="color" id="customThemeText">
+              </div>
+              <div class="custom-theme-row">
+                <label for="customThemeTextSubtle">Subtle text</label>
+                <input type="color" id="customThemeTextSubtle">
+              </div>
+              <div class="custom-theme-row">
+                <label for="customThemeAccent">Accent</label>
+                <input type="color" id="customThemeAccent">
+              </div>
+              <div class="form-buttons" style="margin-top: 0.5rem;">
+                <button
+                  type="button"
+                  id="resetCustomTheme"
+                  style="background: rgba(136, 136, 136, 0.3); border: none; border-radius: 6px; color: var(--color-text); cursor: pointer; font-size: 0.8rem; padding: 0.4rem 0.75rem;"
+                >
+                  Reset custom theme
+                </button>
+                <button type="button" class="add-btn" id="saveCustomTheme" style="font-size: 0.8rem;">
+                  Save & use Custom theme
+                </button>
+              </div>
+            </div>
           </div>
         </div>
 
@@ -389,7 +432,11 @@ class SettingsPanel extends HTMLElement {
       clock24h: CONFIG.defaultSettings.clock24h,
       clockShowDate: CONFIG.defaultSettings.clockShowDate,
       clockSecondaryTimezones: CONFIG.defaultSettings.clockSecondaryTimezones,
-      commandsColumns: CONFIG.defaultSettings.commandsColumns
+      commandsColumns: CONFIG.defaultSettings.commandsColumns,
+      customThemeBackground: '',
+      customThemeText: '',
+      customThemeTextSubtle: '',
+      customThemeAccent: ''
     });
 
     const elements = {
@@ -421,6 +468,18 @@ class SettingsPanel extends HTMLElement {
     });
 
     this.applyTheme(settings.theme);
+
+    // Pre-fill custom theme inputs (if any saved)
+    const bgInput = this.shadowRoot.getElementById('customThemeBackground');
+    const textInput = this.shadowRoot.getElementById('customThemeText');
+    const textSubtleInput = this.shadowRoot.getElementById('customThemeTextSubtle');
+    const accentInput = this.shadowRoot.getElementById('customThemeAccent');
+
+    if (bgInput && settings.customThemeBackground) bgInput.value = settings.customThemeBackground;
+    if (textInput && settings.customThemeText) textInput.value = settings.customThemeText;
+    if (textSubtleInput && settings.customThemeTextSubtle) textSubtleInput.value = settings.customThemeTextSubtle;
+    if (accentInput && settings.customThemeAccent) accentInput.value = settings.customThemeAccent;
+
     this.renderCommands();
   }
 
@@ -533,14 +592,120 @@ class SettingsPanel extends HTMLElement {
     locationInput?.addEventListener('blur', () => {
       setTimeout(() => suggestionsEl.classList.remove('visible'), 200);
     });
+
+    // Custom theme editor toggle
+    const toggleCustomTheme = this.shadowRoot.getElementById('toggleCustomTheme');
+    const customThemeEditor = this.shadowRoot.getElementById('customThemeEditor');
+    const bgInput = this.shadowRoot.getElementById('customThemeBackground');
+    const textInput = this.shadowRoot.getElementById('customThemeText');
+    const textSubtleInput = this.shadowRoot.getElementById('customThemeTextSubtle');
+    const accentInput = this.shadowRoot.getElementById('customThemeAccent');
+    const saveCustomTheme = this.shadowRoot.getElementById('saveCustomTheme');
+    const resetCustomTheme = this.shadowRoot.getElementById('resetCustomTheme');
+
+    if (toggleCustomTheme && customThemeEditor) {
+      toggleCustomTheme.addEventListener('click', () => {
+        const isOpen = customThemeEditor.classList.toggle('open');
+        toggleCustomTheme.textContent = isOpen
+          ? 'Hide advanced theme editor'
+          : 'Show advanced theme editor';
+      });
+    }
+
+    if (saveCustomTheme) {
+      saveCustomTheme.addEventListener('click', async () => {
+        const values = {
+          customThemeBackground: bgInput?.value || '',
+          customThemeText: textInput?.value || '',
+          customThemeTextSubtle: textSubtleInput?.value || '',
+          customThemeAccent: accentInput?.value || ''
+        };
+
+        await browser.storage.sync.set({
+          ...values,
+          theme: 'custom'
+        });
+
+        const themeSelect = this.shadowRoot.getElementById('theme');
+        if (themeSelect) {
+          themeSelect.value = 'custom';
+        }
+
+        this.applyTheme('custom');
+      });
+    }
+
+    if (resetCustomTheme) {
+      resetCustomTheme.addEventListener('click', async () => {
+        await browser.storage.sync.set({
+          customThemeBackground: '',
+          customThemeText: '',
+          customThemeTextSubtle: '',
+          customThemeAccent: ''
+        });
+
+        if (bgInput) bgInput.value = '';
+        if (textInput) textInput.value = '';
+        if (textSubtleInput) textSubtleInput.value = '';
+        if (accentInput) accentInput.value = '';
+
+        // If currently on custom theme, fall back to system
+        const themeSelect = this.shadowRoot.getElementById('theme');
+        if (themeSelect && themeSelect.value === 'custom') {
+          themeSelect.value = 'system';
+          this.applyTheme('system');
+          browser.storage.sync.set({ theme: 'system' });
+        } else {
+          // Clear any custom overrides if not using custom
+          this.applyTheme(elements.theme?.value || CONFIG.defaultSettings.theme);
+        }
+      });
+    }
   }
 
   applyTheme(theme) {
+    const root = document.documentElement;
+
+    const clearCustomOverrides = () => {
+      root.style.removeProperty('--color-background');
+      root.style.removeProperty('--color-text');
+      root.style.removeProperty('--color-text-subtle');
+      root.style.removeProperty('--color-accent');
+    };
+
     if (theme === 'system') {
-      document.documentElement.removeAttribute('data-theme');
-    } else {
-      document.documentElement.setAttribute('data-theme', theme);
+      clearCustomOverrides();
+      root.removeAttribute('data-theme');
+      return;
     }
+
+    if (theme === 'custom') {
+      // Use dark as a base and then override with user values
+      root.setAttribute('data-theme', 'dark');
+      browser.storage.sync.get({
+        customThemeBackground: '',
+        customThemeText: '',
+        customThemeTextSubtle: '',
+        customThemeAccent: ''
+      }).then((values) => {
+        if (values.customThemeBackground) {
+          root.style.setProperty('--color-background', values.customThemeBackground);
+        }
+        if (values.customThemeText) {
+          root.style.setProperty('--color-text', values.customThemeText);
+        }
+        if (values.customThemeTextSubtle) {
+          root.style.setProperty('--color-text-subtle', values.customThemeTextSubtle);
+        }
+        if (values.customThemeAccent) {
+          root.style.setProperty('--color-accent', values.customThemeAccent);
+        }
+      });
+      return;
+    }
+
+    clearCustomOverrides();
+    root.setAttribute('data-theme', theme);
   }
 
   async setupCustomCommands() {
