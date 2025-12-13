@@ -24,6 +24,23 @@
   --dark-text: #ddd;
   --dark-text-subtle: #888;
   --dark-overlay: rgba(0, 0, 0, 0.5);
+  /* Catppuccin (Mocha-inspired) palette */
+  --ctp-background: #1e1e2e;
+  --ctp-text: #cdd6f4;
+  --ctp-text-subtle: #bac2de;
+  --ctp-overlay: rgba(24, 24, 37, 0.85);
+  --ctp-accent: #89b4fa;
+  /* High contrast black & white */
+  --hc-background: #000000;
+  --hc-text: #ffffff;
+  --hc-text-subtle: #d0d0d0;
+  --hc-overlay: rgba(255, 255, 255, 0.12);
+  --hc-accent: #ffffff;
+  /* Generic button text on accent color */
+  --button-on-accent-color: #ffffff;
+  /* Toggle knob colors */
+  --toggle-knob-color: #ffffff;
+  --toggle-knob-color-on: #ffffff;
 }
 
 @media (prefers-color-scheme: light) {
@@ -47,6 +64,25 @@
   --color-text: var(--dark-text);
   --color-text-subtle: var(--dark-text-subtle);
   --color-overlay: var(--dark-overlay);
+}
+
+:root[data-theme="catppuccin"] {
+  --color-background: var(--ctp-background);
+  --color-text: var(--ctp-text);
+  --color-text-subtle: var(--ctp-text-subtle);
+  --color-overlay: var(--ctp-overlay);
+  --color-accent: var(--ctp-accent);
+}
+
+:root[data-theme="high-contrast"] {
+  --color-background: var(--hc-background);
+  --color-text: var(--hc-text);
+  --color-text-subtle: var(--hc-text-subtle);
+  --color-overlay: var(--hc-overlay);
+  --color-accent: var(--hc-accent);
+  --button-on-accent-color: #000000;
+  --toggle-knob-color: #ffffff;
+  --toggle-knob-color-on: #000000;
 }
 
 html {

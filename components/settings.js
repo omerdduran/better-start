@@ -227,6 +227,8 @@ class SettingsPanel extends HTMLElement {
               <option value="system">System</option>
               <option value="light">Light</option>
               <option value="dark">Dark</option>
+              <option value="catppuccin">Catppuccin</option>
+              <option value="high-contrast">High Contrast</option>
             </select>
           </div>
 

@@ -126,7 +126,7 @@ const SETTINGS_STYLES = `
           width: 18px;
           left: 2px;
           bottom: 2px;
-          background: white;
+          background: var(--toggle-knob-color);
           border-radius: 50%;
           transition: transform 150ms;
         }
@@ -137,6 +137,7 @@ const SETTINGS_STYLES = `
 
         .toggle input:checked + .toggle-slider::before {
           transform: translateX(18px);
+          background: var(--toggle-knob-color-on);
         }
 
         /* Select */
@@ -314,7 +315,7 @@ const SETTINGS_STYLES = `
           background: var(--color-accent);
           border: none;
           border-radius: 6px;
-          color: white;
+          color: var(--button-on-accent-color);
           cursor: pointer;
           font-size: 0.85rem;
           font-weight: 500;
