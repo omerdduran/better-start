@@ -1,5 +1,6 @@
 class SettingsPanel extends HTMLElement {
   #initialized = false;
+  #editingCommand = null; // Stores original command data when editing
 
   constructor() {
     super();
@@ -263,6 +264,27 @@ class SettingsPanel extends HTMLElement {
           opacity: 1;
         }
 
+        .edit-btn {
+          background: none;
+          border: none;
+          color: var(--color-text-subtle);
+          cursor: pointer;
+          font-size: 0.85rem;
+          padding: 0.25rem;
+          opacity: 0.5;
+          transition: opacity 150ms, color 150ms;
+        }
+
+        .edit-btn:hover {
+          color: var(--color-accent);
+          opacity: 1;
+        }
+
+        .command-actions {
+          display: flex;
+          gap: 0.25rem;
+        }
+
         /* Add Command Form */
         .add-form {
           display: grid;
@@ -287,6 +309,42 @@ class SettingsPanel extends HTMLElement {
           font-size: 0.85rem;
           font-weight: 500;
           padding: 0.5rem 1rem;
+          transition: opacity 150ms;
+        }
+
+        .add-btn:hover {
+          opacity: 0.9;
+        }
+
+        .cancel-btn {
+          background: rgba(136, 136, 136, 0.3);
+          border: none;
+          border-radius: 6px;
+          color: var(--color-text);
+          cursor: pointer;
+          font-size: 0.85rem;
+          font-weight: 500;
+          padding: 0.5rem 1rem;
+          transition: opacity 150ms;
+          display: none;
+        }
+
+        .cancel-btn.visible {
+          display: block;
+        }
+
+        .cancel-btn:hover {
+          opacity: 0.8;
+        }
+
+        .form-buttons {
+          display: flex;
+          gap: 0.5rem;
+        }
+
+        .form-buttons .add-btn {
+          flex: 1;
+        }
           transition: opacity 150ms;
         }
 
@@ -493,7 +551,11 @@ class SettingsPanel extends HTMLElement {
                 </div>
               </span>
             </div>
-            <button type="submit" class="add-btn">Add Link</button>
+            <input type="text" id="commandSuggestions" placeholder="Suggestions (comma-separated keys)">
+            <div class="form-buttons">
+              <button type="button" class="cancel-btn" id="cancelEdit">Cancel</button>
+              <button type="submit" class="add-btn">Add Link</button>
+            </div>
           </form>
         </div>
 
@@ -650,23 +712,68 @@ class SettingsPanel extends HTMLElement {
       const name = this.shadowRoot.getElementById('commandName').value.trim();
       const url = this.shadowRoot.getElementById('commandUrl').value;
       const searchTemplate = this.shadowRoot.getElementById('commandSearchTemplate').value.trim();
+      const suggestionsInput = this.shadowRoot.getElementById('commandSuggestions').value.trim();
 
-      if (COMMANDS.has(key)) {
-        alert(`Key '${key}' already exists.`);
+      const { deletedCommands = [], customCommands = {} } = await browser.storage.sync.get(['deletedCommands', 'customCommands']);
+
+      // Check if key already exists (but allow if it's being edited - in deletedCommands or already in customCommands being overwritten)
+      const isBuiltinActive = COMMANDS.has(key) && !deletedCommands.includes(key);
+      const isCustomExisting = customCommands.hasOwnProperty(key);
+
+      if (isBuiltinActive) {
+        alert(`Key '${key}' is a built-in command. Delete it first to override.`);
         return;
       }
-
-      const { customCommands = {} } = await browser.storage.sync.get('customCommands');
 
       // Build command object - only include non-empty fields
       const command = { url };
       if (name) command.name = name;
       if (searchTemplate) command.searchTemplate = searchTemplate;
+      if (suggestionsInput) {
+        command.suggestions = suggestionsInput.split(',').map(s => s.trim()).filter(s => s);
+      }
 
       customCommands[key] = command;
       await browser.storage.sync.set({ customCommands });
+
+      // Clear editing state and hide cancel button
+      this.#editingCommand = null;
+      this.shadowRoot.getElementById('cancelEdit').classList.remove('visible');
+
       this.renderCommands();
       form.reset();
+    });
+
+    // Cancel edit button handler
+    const cancelBtn = this.shadowRoot.getElementById('cancelEdit');
+    cancelBtn.addEventListener('click', async () => {
+      if (!this.#editingCommand) return;
+
+      const { key, isBuiltin, name, url, searchTemplate, suggestions } = this.#editingCommand;
+
+      // Restore the original command
+      if (isBuiltin) {
+        // Remove from deletedCommands to restore built-in
+        const { deletedCommands = [] } = await browser.storage.sync.get('deletedCommands');
+        await browser.storage.sync.set({
+          deletedCommands: deletedCommands.filter(k => k !== key)
+        });
+      } else {
+        // Re-add the custom command
+        const { customCommands = {} } = await browser.storage.sync.get('customCommands');
+        const command = { url };
+        if (name) command.name = name;
+        if (searchTemplate) command.searchTemplate = searchTemplate;
+        if (suggestions?.length) command.suggestions = suggestions;
+        customCommands[key] = command;
+        await browser.storage.sync.set({ customCommands });
+      }
+
+      // Clear form and editing state
+      this.#editingCommand = null;
+      cancelBtn.classList.remove('visible');
+      this.shadowRoot.getElementById('addCommandForm').reset();
+      this.renderCommands();
     });
   }
 
@@ -690,14 +797,68 @@ class SettingsPanel extends HTMLElement {
       allCommands.push({ key, ...cmd, isBuiltin: false });
     }
 
-    list.innerHTML = allCommands.map(cmd => `
-      <div class="command-item" data-key="${cmd.key}" data-builtin="${cmd.isBuiltin}">
-        <span class="command-key">${cmd.key}</span>
-        <span class="command-name">${cmd.name || '<em style="opacity:0.5">hidden</em>'}${cmd.searchTemplate ? ' <em style="opacity:0.5; font-size:0.7rem">🔍</em>' : ''}</span>
-        <button class="delete-btn" title="Delete">×</button>
-      </div>
-    `).join('');
+    list.innerHTML = allCommands.map(cmd => {
+      const icons = [];
+      if (cmd.searchTemplate) icons.push('🔍');
+      if (cmd.suggestions?.length) icons.push('📋');
+      const iconStr = icons.length ? ` <em style="opacity:0.5; font-size:0.7rem">${icons.join('')}</em>` : '';
 
+      return `
+        <div class="command-item" data-key="${cmd.key}" data-builtin="${cmd.isBuiltin}" 
+             data-name="${cmd.name || ''}" data-url="${cmd.url || ''}" 
+             data-template="${cmd.searchTemplate || ''}" 
+             data-suggestions="${(cmd.suggestions || []).join(',')}">
+          <span class="command-key">${cmd.key}</span>
+          <span class="command-name">${cmd.name || '<em style="opacity:0.5">hidden</em>'}${iconStr}</span>
+          <div class="command-actions">
+            <button class="edit-btn" title="Edit">✎</button>
+            <button class="delete-btn" title="Delete">×</button>
+          </div>
+        </div>
+      `;
+    }).join('');
+
+    // Edit button handlers
+    list.querySelectorAll('.edit-btn').forEach(btn => {
+      btn.addEventListener('click', async () => {
+        const item = btn.closest('.command-item');
+        const key = item.dataset.key;
+        const isBuiltin = item.dataset.builtin === 'true';
+
+        // Store original command data for cancel
+        this.#editingCommand = {
+          key,
+          isBuiltin,
+          name: item.dataset.name,
+          url: item.dataset.url,
+          searchTemplate: item.dataset.template,
+          suggestions: item.dataset.suggestions ? item.dataset.suggestions.split(',') : []
+        };
+
+        // Show cancel button
+        this.shadowRoot.getElementById('cancelEdit').classList.add('visible');
+
+        // Populate form with existing values
+        this.shadowRoot.getElementById('commandKey').value = key;
+        this.shadowRoot.getElementById('commandName').value = item.dataset.name;
+        this.shadowRoot.getElementById('commandUrl').value = item.dataset.url;
+        this.shadowRoot.getElementById('commandSearchTemplate').value = item.dataset.template;
+        this.shadowRoot.getElementById('commandSuggestions').value = item.dataset.suggestions;
+
+        // If editing, delete the old entry first (will be re-added on submit)
+        if (isBuiltin) {
+          const { deletedCommands = [] } = await browser.storage.sync.get('deletedCommands');
+          await browser.storage.sync.set({ deletedCommands: [...deletedCommands, key] });
+        } else {
+          const { customCommands = {} } = await browser.storage.sync.get('customCommands');
+          delete customCommands[key];
+          await browser.storage.sync.set({ customCommands });
+        }
+        this.renderCommands();
+      });
+    });
+
+    // Delete button handlers
     list.querySelectorAll('.delete-btn').forEach(btn => {
       btn.addEventListener('click', async () => {
         const item = btn.closest('.command-item');

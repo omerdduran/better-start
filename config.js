@@ -37,7 +37,22 @@ const CONFIG = {
 
 // prettier-ignore
 const COMMANDS = new Map([
+  // Grid visible commands
   ['a', { name: 'Chat', searchTemplate: '?q={}', url: 'https://chatgpt.com' }],
   ['c', { name: 'Cloud', url: 'https://dash.cloudflare.com' }],
   ['d', { name: 'Drive', url: 'https://drive.google.com/drive/u/0/my-drive' }],
+  ['g', { name: 'GitHub', url: 'https://github.com' }],
+  ['f', { name: 'Figma', url: 'https://figma.com' }],
+  ['u', { name: 'Udemy', url: 'https://www.udemy.com/home/my-courses/learning/' }],
+  ['t', { name: 'Translate', url: 'https://www.deepl.com/translator', searchTemplate: '#en/tr/{}', suggestions: ['t-de', 't-fr', 't-es'] }],
+  ['r', { name: 'Reddit', url: 'https://reddit.com', searchTemplate: '/search/?q={}' }],
+
+  // Hidden commands (no name = not shown in grid)
+  ['google', { url: 'https://www.google.com', searchTemplate: '/search?q={}' }],
+  ['0', { url: 'http://localhost:', searchTemplate: ':{}' }],
+
+  // Translate suggestions
+  ['t-de', { url: 'https://www.deepl.com/translator', searchTemplate: '#en/de/{}' }],
+  ['t-fr', { url: 'https://www.deepl.com/translator', searchTemplate: '#en/fr/{}' }],
+  ['t-es', { url: 'https://www.deepl.com/translator', searchTemplate: '#en/es/{}' }],
 ]);
