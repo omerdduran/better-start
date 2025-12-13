@@ -119,6 +119,7 @@ class SettingsPanel extends HTMLElement {
             <input type="number" id="commandsColumns" min="1" max="12">
           </div>
           
+          <input type="text" id="commandsSearch" placeholder="Search bookmarks..." style="margin-bottom: 0.5rem;">
           <div class="commands-list" id="commandsList"></div>
 
           <form class="add-form" id="addCommandForm">
@@ -372,6 +373,19 @@ class SettingsPanel extends HTMLElement {
         browser.storage.sync.set({ [key]: value });
       });
     });
+
+    // Search/filter bookmarks
+    const searchInput = this.shadowRoot.getElementById('commandsSearch');
+    searchInput?.addEventListener('input', (e) => {
+      const query = e.target.value.toLowerCase().trim();
+      const items = this.shadowRoot.querySelectorAll('.command-item');
+      items.forEach(item => {
+        const key = item.dataset.key.toLowerCase();
+        const name = (item.dataset.name || '').toLowerCase();
+        const matches = key.includes(query) || name.includes(query);
+        item.style.display = matches ? '' : 'none';
+      });
+    });
   }
 
   applyTheme(theme) {
@@ -585,11 +599,17 @@ class SettingsPanel extends HTMLElement {
         this.shadowRoot.getElementById('cancelEdit').classList.add('visible');
 
         // Populate form with existing values
-        this.shadowRoot.getElementById('commandKey').value = key;
+        const keyInput = this.shadowRoot.getElementById('commandKey');
+        keyInput.value = key;
         this.shadowRoot.getElementById('commandName').value = item.dataset.name;
         this.shadowRoot.getElementById('commandUrl').value = item.dataset.url;
         this.shadowRoot.getElementById('commandSearchTemplate').value = item.dataset.template;
         this.shadowRoot.getElementById('commandSuggestions').value = item.dataset.suggestions;
+
+        // Scroll to form and focus
+        const form = this.shadowRoot.getElementById('addCommandForm');
+        form.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        keyInput.focus();
 
         // If editing, delete the old entry first (will be re-added on submit)
         if (isBuiltin) {
