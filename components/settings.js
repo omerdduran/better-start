@@ -654,7 +654,21 @@ class SettingsPanel extends HTMLElement {
                 </div>
               </span>
             </div>
-            <input type="text" id="commandSuggestions" placeholder="Suggestions (comma-separated keys)">
+            <div style="display: flex; align-items: center; gap: 0.5rem;">
+              <input type="text" id="commandSuggestions" placeholder="Suggestions (comma-separated keys)" style="flex: 1;">
+              <span class="info-wrapper">
+                <button type="button" class="info-btn">?</button>
+                <div class="info-tooltip">
+                  <h4>Suggestions</h4>
+                  <ul>
+                    <li>When you type this command key, these suggestions appear</li>
+                    <li>Enter comma-separated keys: <code>t-de, t-fr</code></li>
+                    <li>Each suggestion should be a separate command</li>
+                  </ul>
+                  <p style="margin: 0.5rem 0 0; color: var(--color-text-subtle);">Example: Command "t" with suggestions "t-de, t-fr" → typing "t" shows t-de and t-fr as options.</p>
+                </div>
+              </span>
+            </div>
             <div class="form-buttons">
               <button type="button" class="cancel-btn" id="cancelEdit">Cancel</button>
               <button type="submit" class="add-btn">Add Link</button>
