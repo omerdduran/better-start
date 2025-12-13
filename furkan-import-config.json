@@ -1,0 +1,191 @@
+{
+    "settings": {
+        "theme": "system",
+        "defaultSearch": "duckduckgo",
+        "newTab": true,
+        "weatherEnabled": true,
+        "weatherLocation": "",
+        "weatherF": false,
+        "clockEnabled": true,
+        "clock24h": false,
+        "clockShowDate": true,
+        "commandsColumns": 4
+    },
+    "builtinCommands": {},
+    "customCommands": {
+        "google": {
+            "url": "https://www.google.com",
+            "searchTemplate": "/search?q={}"
+        },
+        "0": {
+            "url": "http://localhost:",
+            "searchTemplate": ":{}"
+        },
+        "3d": {
+            "url": "https://thingiverse.com",
+            "suggestions": [
+                "Thingiverse",
+                "Makerworld",
+                "Thangs"
+            ]
+        },
+        "Thingiverse": {
+            "url": "https://thingiverse.com"
+        },
+        "Makerworld": {
+            "url": "https://makerworld.com/en"
+        },
+        "Thangs": {
+            "url": "https://thangs.com/"
+        },
+        "gt": {
+            "url": "https://translate.google.com/",
+            "searchTemplate": "?sl=en&tl=tr&text={}&op=translate"
+        },
+        "t-ge": {
+            "url": "https://www.deepl.com/translator",
+            "searchTemplate": "#de/en/{}"
+        },
+        "t-eg": {
+            "url": "https://www.deepl.com/translator",
+            "searchTemplate": "#en/de/{}"
+        },
+        "t-gt": {
+            "url": "https://www.deepl.com/translator",
+            "searchTemplate": "#de/tr/{}"
+        },
+        "t-tg": {
+            "url": "https://www.deepl.com/translator",
+            "searchTemplate": "#tr/de/{}"
+        },
+        "t-te": {
+            "url": "https://www.deepl.com/translator",
+            "searchTemplate": "#tr/en/{}"
+        },
+        "y": {
+            "url": "https://www.youtube.com/feed/subscriptions"
+        },
+        "gd": {
+            "url": "https://docs.google.com"
+        },
+        "gpt": {
+            "url": "https://chatgpt.com/",
+            "searchTemplate": "?model=gpt-4&q={}"
+        },
+        "gr": {
+            "url": "https://github.com/furkanunsalan?tab=repositories"
+        },
+        "gs": {
+            "url": "https://github.com/furkanunsalan?tab=stars"
+        },
+        "re": {
+            "url": "https://reddit.com",
+            "searchTemplate": "/search/?q={}&type=link",
+            "suggestions": [
+                "re/r/selfhosted",
+                "re/r/dataisbeautiful",
+                "re/r/macsetups",
+                "re/r/leetcode"
+            ]
+        },
+        "ro": {
+            "url": "https://roadmap.sh"
+        },
+        "a": {
+            "name": "Duck AI",
+            "url": "https://duck.ai",
+            "suggestions": [
+                "ChatGPT",
+                "Claude"
+            ]
+        },
+        "ChatGPT": {
+            "url": "https://chatgpt.com/"
+        },
+        "Claude": {
+            "url": "https://claude.ai/"
+        },
+        "b": {
+            "name": "Bookmarks",
+            "url": "https://app.raindrop.io/my/0"
+        },
+        "c": {
+            "name": "Cloud Drive",
+            "url": "https://mega.nz/fm/mVoh3ATA"
+        },
+        "ca": {
+            "name": "Canva",
+            "url": "https://canva.com"
+        },
+        "d": {
+            "name": "Duolingo",
+            "url": "https://duolingo.com"
+        },
+        "f": {
+            "name": "Figma",
+            "url": "https://www.figma.com/files/team/1014207282173193530/recents-and-sharing/recently-viewed?fuid=1014207275888563106"
+        },
+        "g": {
+            "name": "GitHub",
+            "url": "https://github.com/furkanunsalan"
+        },
+        "h": {
+            "name": "Haliç",
+            "url": "https://obs.halic.edu.tr/oibs/std/login.aspx",
+            "suggestions": [
+                "www",
+                "OBS",
+                "X",
+                "@edu",
+                "vm"
+            ]
+        },
+        "www": {
+            "url": "https://halic.edu.tr/tr"
+        },
+        "OBS": {
+            "url": "https://obs.halic.edu.tr/oibs/std/login.aspx"
+        },
+        "X": {
+            "url": "https://huzem.halic.edu.tr/login"
+        },
+        "@edu": {
+            "url": "https://outlook.office.com/mail/"
+        },
+        "vm": {
+            "url": "https://vdi.halic.edu.tr/logon/LogonPoint/tmindex.html"
+        },
+        "u": {
+            "name": "Udemy",
+            "url": "https://www.udemy.com/home/my-courses/learning/"
+        },
+        "m": {
+            "name": "Medium",
+            "url": "https://medium.com"
+        },
+        "s": {
+            "url": "/server"
+        },
+        "r": {
+            "name": "Literal",
+            "url": "https://literal.club"
+        },
+        "t": {
+            "url": "https://www.deepl.com/translator",
+            "searchTemplate": "#en/tr/{}",
+            "suggestions": [
+                "t-ge",
+                "t-eg",
+                "t-gt",
+                "t-tg",
+                "t-te"
+            ]
+        },
+        "v": {
+            "name": "Vercel",
+            "url": "https://vercel.com/dashboard"
+        }
+    },
+    "deletedCommands": [],
+    "commandsOrder": []
+}
