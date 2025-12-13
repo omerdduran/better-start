@@ -183,27 +183,4 @@ if (typeof browser === 'undefined') {
     };
 }
 
-// Utility function to check which browser we're running in
-window.BrowserInfo = {
-    isFirefox: isFirefoxBrowser,
-    isChrome: isChromeBrowser,
-
-    // Get favicon URL (different methods for each browser)
-    getFaviconUrl: (pageUrl) => {
-        if (isFirefoxBrowser) {
-            // Firefox doesn't support chrome://favicon, use Google's service
-            try {
-                const url = new URL(pageUrl);
-                return `https://www.google.com/s2/favicons?domain=${url.hostname}&sz=32`;
-            } catch {
-                return '';
-            }
-        } else {
-            // Chrome supports chrome://favicon
-            return `chrome://favicon/${pageUrl}`;
-        }
-    }
-};
-
-// Log which browser is detected
-console.log(`[Better Startpage] Running in ${isFirefoxBrowser ? 'Firefox' : 'Chrome'}`);
+// (BrowserInfo helper and favicon utilities removed; no longer used)

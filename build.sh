@@ -37,12 +37,16 @@ for file in "${FILES[@]}"; do
 done
 cp manifest.firefox.json "$FIREFOX_DIR/manifest.json"
 
-# Create zip files
+# Create zip files (manifest.json must be at the root of the zip)
 echo "🗜️  Creating zip packages..."
-cd "$DIST_DIR"
-zip -r -q "better-startpage-chrome.zip" "chrome"
-zip -r -q "better-startpage-firefox.zip" "firefox"
-cd ..
+(
+  cd "$CHROME_DIR"
+  zip -r -q "../better-startpage-chrome.zip" .
+)
+(
+  cd "$FIREFOX_DIR"
+  zip -r -q "../better-startpage-firefox.zip" .
+)
 
 echo ""
 echo "✅ Build complete!"
