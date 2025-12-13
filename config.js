@@ -49,7 +49,7 @@ const COMMANDS = new Map([
 
   // Hidden commands (no name = not shown in grid)
   ['google', { url: 'https://www.google.com', searchTemplate: '/search?q={}' }],
-  ['0', { url: 'http://localhost:', searchTemplate: ':{}' }],
+  ['0', { url: 'http://localhost:{}', searchTemplate: '' }],
 
   // Translate suggestions
   ['t-de', { url: 'https://www.deepl.com/translator', searchTemplate: '#en/de/{}' }],
