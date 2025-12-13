@@ -19,6 +19,31 @@ const CONFIG = {
       name: 'Bing',
       template: 'https://www.bing.com/search?q={}',
       suggestionUrl: 'https://api.bing.com/qsonhs.aspx?type=cb&q={}'
+    },
+    yahoo: {
+      name: 'Yahoo',
+      template: 'https://search.yahoo.com/search?p={}',
+      suggestionUrl: null
+    },
+    brave: {
+      name: 'Brave',
+      template: 'https://search.brave.com/search?q={}',
+      suggestionUrl: null
+    },
+    ecosia: {
+      name: 'Ecosia',
+      template: 'https://www.ecosia.org/search?q={}',
+      suggestionUrl: null
+    },
+    startpage: {
+      name: 'Startpage',
+      template: 'https://www.startpage.com/do/search?q={}',
+      suggestionUrl: null
+    },
+    yandex: {
+      name: 'Yandex',
+      template: 'https://yandex.com/search/?text={}',
+      suggestionUrl: null
     }
   },
   defaultSettings: {

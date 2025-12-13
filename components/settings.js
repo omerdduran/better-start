@@ -98,6 +98,11 @@ class SettingsPanel extends HTMLElement {
               <option value="duckduckgo">DuckDuckGo</option>
               <option value="google">Google</option>
               <option value="bing">Bing</option>
+              <option value="yahoo">Yahoo</option>
+              <option value="brave">Brave</option>
+              <option value="ecosia">Ecosia</option>
+              <option value="startpage">Startpage</option>
+              <option value="yandex">Yandex</option>
             </select>
           </div>
 
