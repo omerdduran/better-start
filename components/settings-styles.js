@@ -159,10 +159,11 @@ const SETTINGS_STYLES = `
           border-color: var(--color-accent);
         }
 
-        /* Text Input */
+        /* Text & Multiline Input */
         input[type="text"],
         input[type="url"],
-        input[type="number"] {
+        input[type="number"],
+        textarea {
           background: rgba(136, 136, 136, 0.1);
           border: 1px solid rgba(136, 136, 136, 0.2);
           border-radius: 6px;
@@ -174,7 +175,8 @@ const SETTINGS_STYLES = `
 
         input[type="text"]:focus,
         input[type="url"]:focus,
-        input[type="number"]:focus {
+        input[type="number"]:focus,
+        textarea:focus {
           outline: none;
           border-color: var(--color-accent);
         }
@@ -191,7 +193,8 @@ const SETTINGS_STYLES = `
           margin: 0;
         }
 
-        input::placeholder {
+        input::placeholder,
+        textarea::placeholder {
           color: var(--color-text-subtle);
         }
 

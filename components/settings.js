@@ -112,6 +112,25 @@ class SettingsPanel extends HTMLElement {
               <span class="toggle-slider"></span>
             </label>
           </div>
+
+          <div class="option" style="align-items: flex-start; flex-direction: column; gap: 0.25rem;">
+            <div style="display: flex; justify-content: space-between; width: 100%; align-items: center; gap: 0.5rem;">
+              <span class="option-label">Secondary time zones</span>
+              <span class="info-wrapper">
+                <button type="button" class="info-btn">?</button>
+                <div class="info-tooltip">
+                  <h4>Secondary time zones</h4>
+                  <ul>
+                    <li>One per line</li>
+                    <li>Format: <code>Label=IANA/Time_Zone</code></li>
+                    <li>Example: <code>London=Europe/London</code></li>
+                    <li>If you only write the time zone, it will be used as the label</li>
+                  </ul>
+                </div>
+              </span>
+            </div>
+            <textarea id="clockSecondaryTimezones" rows="3" placeholder="London=Europe/London&#10;New York=America/New_York" style="width: 100%; resize: vertical;"></textarea>
+          </div>
         </div>
 
         <!-- Search Section -->
@@ -352,6 +371,7 @@ class SettingsPanel extends HTMLElement {
       clockEnabled: CONFIG.defaultSettings.clockEnabled,
       clock24h: CONFIG.defaultSettings.clock24h,
       clockShowDate: CONFIG.defaultSettings.clockShowDate,
+      clockSecondaryTimezones: CONFIG.defaultSettings.clockSecondaryTimezones,
       commandsColumns: CONFIG.defaultSettings.commandsColumns
     });
 
@@ -368,6 +388,7 @@ class SettingsPanel extends HTMLElement {
       clockEnabled: this.shadowRoot.getElementById('clockEnabled'),
       clock24h: this.shadowRoot.getElementById('clock24h'),
       clockShowDate: this.shadowRoot.getElementById('clockShowDate'),
+      clockSecondaryTimezones: this.shadowRoot.getElementById('clockSecondaryTimezones'),
       commandsColumns: this.shadowRoot.getElementById('commandsColumns')
     };
 
@@ -398,6 +419,7 @@ class SettingsPanel extends HTMLElement {
       clockEnabled: this.shadowRoot.getElementById('clockEnabled'),
       clock24h: this.shadowRoot.getElementById('clock24h'),
       clockShowDate: this.shadowRoot.getElementById('clockShowDate'),
+      clockSecondaryTimezones: this.shadowRoot.getElementById('clockSecondaryTimezones'),
       commandsColumns: this.shadowRoot.getElementById('commandsColumns')
     };
 
@@ -413,6 +435,14 @@ class SettingsPanel extends HTMLElement {
         browser.storage.sync.set({ [key]: value });
       });
     });
+
+    // Save secondary timezones as user types so closing the panel without blur still persists
+    const secondaryTzEl = elements.clockSecondaryTimezones;
+    if (secondaryTzEl) {
+      secondaryTzEl.addEventListener('input', (e) => {
+        browser.storage.sync.set({ clockSecondaryTimezones: e.target.value });
+      });
+    }
 
     // Search/filter bookmarks
     const searchInput = this.shadowRoot.getElementById('commandsSearch');

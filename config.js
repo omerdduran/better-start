@@ -59,6 +59,7 @@ const CONFIG = {
     clockEnabled: true,
     clock24h: false,
     clockShowDate: true,
+    clockSecondaryTimezones: '',
     commandsColumns: 4
   }
 };
