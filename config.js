@@ -50,6 +50,7 @@ const CONFIG = {
     theme: 'system',
     defaultSearch: 'duckduckgo',
     newTab: true,
+    pageTitle: 'Better Start',
     weatherEnabled: true,
     weatherLocation: '',
     weatherF: false,

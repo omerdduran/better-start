@@ -229,6 +229,11 @@ class SettingsPanel extends HTMLElement {
               <option value="dark">Dark</option>
             </select>
           </div>
+
+          <div class="option">
+            <span class="option-label">Page title</span>
+            <input type="text" id="pageTitle" placeholder="New Tab">
+          </div>
         </div>
 
         <!-- Data Section -->
@@ -362,6 +367,7 @@ class SettingsPanel extends HTMLElement {
       theme: CONFIG.defaultSettings.theme,
       defaultSearch: CONFIG.defaultSettings.defaultSearch,
       newTab: CONFIG.defaultSettings.newTab,
+      pageTitle: CONFIG.defaultSettings.pageTitle,
       weatherEnabled: CONFIG.defaultSettings.weatherEnabled,
       weatherLocation: CONFIG.defaultSettings.weatherLocation,
       weatherF: CONFIG.defaultSettings.weatherF,
@@ -379,6 +385,7 @@ class SettingsPanel extends HTMLElement {
       theme: this.shadowRoot.getElementById('theme'),
       defaultSearch: this.shadowRoot.getElementById('defaultSearch'),
       newTab: this.shadowRoot.getElementById('newTab'),
+      pageTitle: this.shadowRoot.getElementById('pageTitle'),
       weatherEnabled: this.shadowRoot.getElementById('weatherEnabled'),
       weatherLocation: this.shadowRoot.getElementById('weatherLocation'),
       weatherF: this.shadowRoot.getElementById('weatherF'),
@@ -410,6 +417,7 @@ class SettingsPanel extends HTMLElement {
       theme: this.shadowRoot.getElementById('theme'),
       defaultSearch: this.shadowRoot.getElementById('defaultSearch'),
       newTab: this.shadowRoot.getElementById('newTab'),
+      pageTitle: this.shadowRoot.getElementById('pageTitle'),
       weatherEnabled: this.shadowRoot.getElementById('weatherEnabled'),
       weatherLocation: this.shadowRoot.getElementById('weatherLocation'),
       weatherF: this.shadowRoot.getElementById('weatherF'),
