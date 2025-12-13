@@ -144,6 +144,24 @@ main {
   transform: rotate(90deg);
 }
 
+/* Hover-only settings button mode */
+body.settings-hover-only .settings-toggle {
+  width: 3rem;
+  height: 3rem;
+  cursor: pointer;
+}
+
+body.settings-hover-only .settings-toggle button {
+  opacity: 0;
+  pointer-events: none;
+}
+
+body.settings-hover-only .settings-toggle:hover button {
+  opacity: 0.8;
+  pointer-events: auto;
+  transform: rotate(90deg);
+}
+
 @keyframes fadeIn {
   from {
     opacity: 0;

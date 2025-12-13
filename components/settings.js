@@ -236,6 +236,14 @@ class SettingsPanel extends HTMLElement {
             <span class="option-label">Page title</span>
             <input type="text" id="pageTitle" placeholder="New Tab">
           </div>
+
+          <div class="option">
+            <span class="option-label">Hide settings button (show on hover)</span>
+            <label class="toggle">
+              <input type="checkbox" id="settingsIconHoverOnly">
+              <span class="toggle-slider"></span>
+            </label>
+          </div>
         </div>
 
         <!-- Data Section -->
@@ -370,6 +378,7 @@ class SettingsPanel extends HTMLElement {
       defaultSearch: CONFIG.defaultSettings.defaultSearch,
       newTab: CONFIG.defaultSettings.newTab,
       pageTitle: CONFIG.defaultSettings.pageTitle,
+      settingsIconHoverOnly: CONFIG.defaultSettings.settingsIconHoverOnly,
       weatherEnabled: CONFIG.defaultSettings.weatherEnabled,
       weatherLocation: CONFIG.defaultSettings.weatherLocation,
       weatherF: CONFIG.defaultSettings.weatherF,
@@ -388,6 +397,7 @@ class SettingsPanel extends HTMLElement {
       defaultSearch: this.shadowRoot.getElementById('defaultSearch'),
       newTab: this.shadowRoot.getElementById('newTab'),
       pageTitle: this.shadowRoot.getElementById('pageTitle'),
+      settingsIconHoverOnly: this.shadowRoot.getElementById('settingsIconHoverOnly'),
       weatherEnabled: this.shadowRoot.getElementById('weatherEnabled'),
       weatherLocation: this.shadowRoot.getElementById('weatherLocation'),
       weatherF: this.shadowRoot.getElementById('weatherF'),
@@ -420,6 +430,7 @@ class SettingsPanel extends HTMLElement {
       defaultSearch: this.shadowRoot.getElementById('defaultSearch'),
       newTab: this.shadowRoot.getElementById('newTab'),
       pageTitle: this.shadowRoot.getElementById('pageTitle'),
+      settingsIconHoverOnly: this.shadowRoot.getElementById('settingsIconHoverOnly'),
       weatherEnabled: this.shadowRoot.getElementById('weatherEnabled'),
       weatherLocation: this.shadowRoot.getElementById('weatherLocation'),
       weatherF: this.shadowRoot.getElementById('weatherF'),

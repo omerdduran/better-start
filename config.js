@@ -51,6 +51,7 @@ const CONFIG = {
     defaultSearch: 'duckduckgo',
     newTab: true,
     pageTitle: 'Better Start',
+    settingsIconHoverOnly: false,
     weatherEnabled: true,
     weatherLocation: '',
     weatherF: false,
