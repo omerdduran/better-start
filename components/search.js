@@ -197,8 +197,13 @@ class Search extends HTMLElement {
 
     if (COMMANDS.has(searchKey)) {
       const command = COMMANDS.get(searchKey);
-      const template = new URL(command.searchTemplate ?? '', command.url);
       const search = rawSearch.trim();
+      // If URL contains {}, format directly without URL constructor
+      if (command.url.includes('{}')) {
+        const url = this.#formatSearchUrl(command.url, search);
+        return { key: searchKey, query, search, splitBy, url };
+      }
+      const template = new URL(command.searchTemplate ?? '', command.url);
       const url = this.#formatSearchUrl(decodeURI(template.href), search);
       return { key: searchKey, query, search, splitBy, url };
     }
