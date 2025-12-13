@@ -179,7 +179,8 @@ class SettingsPanel extends HTMLElement {
 
         /* Text Input */
         input[type="text"],
-        input[type="url"] {
+        input[type="url"],
+        input[type="number"] {
           background: rgba(136, 136, 136, 0.1);
           border: 1px solid rgba(136, 136, 136, 0.2);
           border-radius: 6px;
@@ -190,9 +191,22 @@ class SettingsPanel extends HTMLElement {
         }
 
         input[type="text"]:focus,
-        input[type="url"]:focus {
+        input[type="url"]:focus,
+        input[type="number"]:focus {
           outline: none;
           border-color: var(--color-accent);
+        }
+
+        input[type="number"] {
+          width: 60px;
+          text-align: center;
+          -moz-appearance: textfield;
+        }
+
+        input[type="number"]::-webkit-outer-spin-button,
+        input[type="number"]::-webkit-inner-spin-button {
+          -webkit-appearance: none;
+          margin: 0;
         }
 
         input::placeholder {
@@ -295,6 +309,77 @@ class SettingsPanel extends HTMLElement {
           font-size: 0.8rem;
           margin: 0 0 0.5rem 0;
         }
+
+        /* Info tooltip */
+        .info-wrapper {
+          position: relative;
+          display: inline-block;
+        }
+
+        .info-btn {
+          background: rgba(136, 136, 136, 0.2);
+          border: none;
+          border-radius: 50%;
+          color: var(--color-text-subtle);
+          cursor: help;
+          font-size: 0.7rem;
+          font-weight: 600;
+          width: 16px;
+          height: 16px;
+          padding: 0;
+          line-height: 16px;
+          text-align: center;
+          margin-left: 0.5rem;
+        }
+
+        .info-tooltip {
+          display: none;
+          position: fixed;
+          right: calc(var(--space) + 380px);
+          bottom: 150px;
+          background: var(--color-background);
+          border: 1px solid rgba(136, 136, 136, 0.3);
+          border-radius: 8px;
+          box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
+          padding: 0.75rem;
+          width: 260px;
+          z-index: 1001;
+          font-size: 0.75rem;
+          color: var(--color-text);
+        }
+
+        .info-wrapper:hover .info-tooltip {
+          display: block;
+        }
+
+        .info-tooltip h4 {
+          margin: 0 0 0.5rem 0;
+          font-size: 0.8rem;
+          color: var(--color-text);
+        }
+
+        .info-tooltip code {
+          background: rgba(136, 136, 136, 0.15);
+          padding: 0.1rem 0.3rem;
+          border-radius: 3px;
+          font-size: 0.7rem;
+        }
+
+        .info-tooltip ul {
+          margin: 0;
+          padding-left: 1rem;
+        }
+
+        .info-tooltip li {
+          margin-bottom: 0.3rem;
+          color: var(--color-text-subtle);
+        }
+
+        .optional-label {
+          color: var(--color-text-subtle);
+          font-size: 0.7rem;
+          margin-left: 0.25rem;
+        }
       </style>
 
       <div class="settings-panel">
@@ -380,17 +465,34 @@ class SettingsPanel extends HTMLElement {
           
           <div class="option">
             <span class="option-label">Grid Columns</span>
-            <input type="number" id="commandsColumns" min="1" max="12" style="width: 60px; text-align: center;">
+            <input type="number" id="commandsColumns" min="1" max="12">
           </div>
           
           <div class="commands-list" id="commandsList"></div>
 
           <form class="add-form" id="addCommandForm">
             <div class="form-row">
-              <input type="text" id="commandKey" class="input-small" placeholder="Key" maxlength="3" required>
-              <input type="text" id="commandName" placeholder="Name" required>
+              <input type="text" id="commandKey" class="input-small" placeholder="Key" maxlength="10" required>
+              <input type="text" id="commandName" placeholder="Name (empty = hidden)">
             </div>
             <input type="url" id="commandUrl" placeholder="URL" required>
+            <div style="display: flex; align-items: center; gap: 0.5rem;">
+              <input type="text" id="commandSearchTemplate" placeholder="Search Template" style="flex: 1;">
+              <span class="info-wrapper">
+                <button type="button" class="info-btn">?</button>
+                <div class="info-tooltip">
+                  <h4>Search Template Usage</h4>
+                  <ul>
+                    <li><code>{}</code> = search query</li>
+                    <li><code>?q={}</code> → url.com?q=test</li>
+                    <li><code>/search?q={}</code> → url.com/search?q=test</li>
+                    <li><code>#en/tr/{}</code> → url.com#en/tr/test</li>
+                    <li><code>:{}</code> → localhost:3000</li>
+                  </ul>
+                  <p style="margin: 0.5rem 0 0; color: var(--color-text-subtle);">If Name is empty, link won't appear in grid but can be used via search.</p>
+                </div>
+              </span>
+            </div>
             <button type="submit" class="add-btn">Add Link</button>
           </form>
         </div>
@@ -408,11 +510,55 @@ class SettingsPanel extends HTMLElement {
             </select>
           </div>
         </div>
+
+        <!-- Data Section -->
+        <div class="section">
+          <h3 class="section-title">Data</h3>
+          
+          <div style="display: flex; gap: 0.5rem;">
+            <button type="button" class="add-btn" id="exportSettings" style="flex: 1; background: rgba(136, 136, 136, 0.3);">Export</button>
+            <button type="button" class="add-btn" id="importSettings" style="flex: 1; background: rgba(136, 136, 136, 0.3);">Import</button>
+          </div>
+        </div>
       </div>
     `;
 
     this.shadowRoot.querySelector('.close-btn').addEventListener('click', () => {
       this.close();
+    });
+
+    // Export settings
+    this.shadowRoot.getElementById('exportSettings').addEventListener('click', async () => {
+      const settings = await browser.storage.sync.get();
+      const blob = new Blob([JSON.stringify(settings, null, 2)], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'better-startpage-settings.json';
+      a.click();
+      URL.revokeObjectURL(url);
+    });
+
+    // Import settings
+    this.shadowRoot.getElementById('importSettings').addEventListener('click', () => {
+      const input = document.createElement('input');
+      input.type = 'file';
+      input.accept = '.json';
+      input.onchange = async (e) => {
+        try {
+          const file = e.target.files[0];
+          const text = await file.text();
+          const settings = JSON.parse(text);
+          await browser.storage.sync.set(settings);
+          this.loadSettings();
+          this.renderCommands();
+          alert('Settings imported successfully!');
+        } catch (error) {
+          console.error('Failed to import settings:', error);
+          alert('Failed to import settings. Please check the file format.');
+        }
+      };
+      input.click();
     });
   }
 
@@ -501,8 +647,9 @@ class SettingsPanel extends HTMLElement {
     form.addEventListener('submit', async (e) => {
       e.preventDefault();
       const key = this.shadowRoot.getElementById('commandKey').value.trim().toLowerCase();
-      const name = this.shadowRoot.getElementById('commandName').value;
+      const name = this.shadowRoot.getElementById('commandName').value.trim();
       const url = this.shadowRoot.getElementById('commandUrl').value;
+      const searchTemplate = this.shadowRoot.getElementById('commandSearchTemplate').value.trim();
 
       if (COMMANDS.has(key)) {
         alert(`Key '${key}' already exists.`);
@@ -510,7 +657,13 @@ class SettingsPanel extends HTMLElement {
       }
 
       const { customCommands = {} } = await browser.storage.sync.get('customCommands');
-      customCommands[key] = { name, url };
+
+      // Build command object - only include non-empty fields
+      const command = { url };
+      if (name) command.name = name;
+      if (searchTemplate) command.searchTemplate = searchTemplate;
+
+      customCommands[key] = command;
       await browser.storage.sync.set({ customCommands });
       this.renderCommands();
       form.reset();
@@ -540,7 +693,7 @@ class SettingsPanel extends HTMLElement {
     list.innerHTML = allCommands.map(cmd => `
       <div class="command-item" data-key="${cmd.key}" data-builtin="${cmd.isBuiltin}">
         <span class="command-key">${cmd.key}</span>
-        <span class="command-name">${cmd.name}</span>
+        <span class="command-name">${cmd.name || '<em style="opacity:0.5">hidden</em>'}${cmd.searchTemplate ? ' <em style="opacity:0.5; font-size:0.7rem">🔍</em>' : ''}</span>
         <button class="delete-btn" title="Delete">×</button>
       </div>
     `).join('');
