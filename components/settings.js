@@ -171,6 +171,15 @@ class SettingsPanel extends HTMLElement {
           
           <input type="text" id="commandsSearch" placeholder="Search bookmarks..." style="margin-bottom: 0.5rem;">
           <div class="commands-list" id="commandsList"></div>
+          <button
+            type="button"
+            class="add-btn"
+            id="toggleHiddenCommandsList"
+            style="width: 100%; background: rgba(136, 136, 136, 0.3); margin-top: 0.25rem; font-size: 0.8rem; display: none;"
+          >
+            Show hidden commands
+          </button>
+          <div class="commands-list" id="hiddenCommandsList" style="display: none;"></div>
 
           <form class="add-form" id="addCommandForm">
             <div class="form-row">
@@ -602,6 +611,8 @@ class SettingsPanel extends HTMLElement {
     const accentInput = this.shadowRoot.getElementById('customThemeAccent');
     const saveCustomTheme = this.shadowRoot.getElementById('saveCustomTheme');
     const resetCustomTheme = this.shadowRoot.getElementById('resetCustomTheme');
+    const hiddenToggleListBtn = this.shadowRoot.getElementById('toggleHiddenCommandsList');
+    const hiddenList = this.shadowRoot.getElementById('hiddenCommandsList');
 
     if (toggleCustomTheme && customThemeEditor) {
       toggleCustomTheme.addEventListener('click', () => {
@@ -659,6 +670,18 @@ class SettingsPanel extends HTMLElement {
           // Clear any custom overrides if not using custom
           this.applyTheme(elements.theme?.value || CONFIG.defaultSettings.theme);
         }
+      });
+    }
+
+    if (hiddenToggleListBtn && hiddenList) {
+      hiddenToggleListBtn.addEventListener('click', () => {
+        const nowHidden = hiddenList.style.display === 'none' || hiddenList.style.display === '';
+        hiddenList.style.display = nowHidden ? 'block' : 'none';
+
+        // Extract count from existing text, preserve it
+        const match = hiddenToggleListBtn.textContent.match(/\((\d+)\)/);
+        const countText = match ? ` (${match[1]})` : '';
+        hiddenToggleListBtn.textContent = `${nowHidden ? 'Hide' : 'Show'} hidden commands${countText}`;
       });
     }
   }
@@ -785,7 +808,9 @@ class SettingsPanel extends HTMLElement {
 
   async renderCommands() {
     const list = this.shadowRoot.getElementById('commandsList');
-    if (!list) return;
+    const hiddenList = this.shadowRoot.getElementById('hiddenCommandsList');
+    const hiddenToggle = this.shadowRoot.getElementById('toggleHiddenCommandsList');
+    if (!list || !hiddenList || !hiddenToggle) return;
 
     const { deletedCommands = [], customCommands = {}, commandsOrder = [] } =
       await browser.storage.sync.get(['deletedCommands', 'customCommands', 'commandsOrder']);
@@ -816,19 +841,21 @@ class SettingsPanel extends HTMLElement {
       });
     }
 
-    list.innerHTML = allCommands.map(cmd => {
+    const visibleCommands = allCommands.filter(cmd => !!cmd.name);
+    const hiddenCommands = allCommands.filter(cmd => !cmd.name);
+
+    const renderItem = (cmd, { draggable }) => {
       const icons = [];
       if (cmd.searchTemplate) icons.push('🔍');
       if (cmd.suggestions?.length) icons.push('📋');
       const iconStr = icons.length ? ` <em style="opacity:0.5; font-size:0.7rem">${icons.join('')}</em>` : '';
-      const isVisible = !!cmd.name; // Has name = visible in grid = can be reordered
 
       return `
-        <div class="command-item" draggable="${isVisible}" data-key="${cmd.key}" data-builtin="${cmd.isBuiltin}" 
+        <div class="command-item" draggable="${draggable}" data-key="${cmd.key}" data-builtin="${cmd.isBuiltin}" 
              data-name="${cmd.name || ''}" data-url="${cmd.url || ''}" 
              data-template="${cmd.searchTemplate || ''}" 
              data-suggestions="${(cmd.suggestions || []).join(',')}">
-          ${isVisible ? '<span class="drag-handle" title="Drag to reorder">⋮⋮</span>' : ''}
+          ${draggable ? '<span class="drag-handle" title="Drag to reorder">⋮⋮</span>' : ''}
           <span class="command-key">${cmd.key}</span>
           <span class="command-name">${cmd.name || '<em style="opacity:0.5">hidden</em>'}${iconStr}</span>
           <div class="command-actions">
@@ -837,7 +864,21 @@ class SettingsPanel extends HTMLElement {
           </div>
         </div>
       `;
-    }).join('');
+    };
+
+    list.innerHTML = visibleCommands.map(cmd => renderItem(cmd, { draggable: true })).join('');
+    hiddenList.innerHTML = hiddenCommands.map(cmd => renderItem(cmd, { draggable: false })).join('');
+
+    // Update hidden toggle state
+    if (hiddenCommands.length === 0) {
+      hiddenToggle.style.display = 'none';
+      hiddenList.style.display = 'none';
+    } else {
+      hiddenToggle.style.display = 'block';
+      // Preserve current open/closed state but update label with count
+      const isOpen = hiddenList.style.display !== 'none';
+      hiddenToggle.textContent = `${isOpen ? 'Hide' : 'Show'} hidden commands (${hiddenCommands.length})`;
+    }
 
     // Drag and drop handlers
     let draggedItem = null;
