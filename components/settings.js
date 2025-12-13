@@ -215,8 +215,33 @@ class SettingsPanel extends HTMLElement {
 
     // Export settings
     this.shadowRoot.getElementById('exportSettings').addEventListener('click', async () => {
-      const settings = await browser.storage.sync.get();
-      const blob = new Blob([JSON.stringify(settings, null, 2)], { type: 'application/json' });
+      // Get saved settings
+      const savedSettings = await browser.storage.sync.get();
+
+      // Build full commands object from COMMANDS map
+      const builtinCommands = {};
+      for (const [key, cmd] of COMMANDS) {
+        builtinCommands[key] = { ...cmd };
+      }
+
+      // Merge with defaults so export is never empty
+      const exportData = {
+        // Settings
+        settings: {
+          ...CONFIG.defaultSettings,
+          ...savedSettings
+        },
+        // Built-in commands (from config.js)
+        builtinCommands,
+        // Custom commands (user-added)
+        customCommands: savedSettings.customCommands || {},
+        // Deleted built-in commands
+        deletedCommands: savedSettings.deletedCommands || [],
+        // Commands order
+        commandsOrder: savedSettings.commandsOrder || []
+      };
+
+      const blob = new Blob([JSON.stringify(exportData, null, 2)], { type: 'application/json' });
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
@@ -234,8 +259,21 @@ class SettingsPanel extends HTMLElement {
         try {
           const file = e.target.files[0];
           const text = await file.text();
-          const settings = JSON.parse(text);
-          await browser.storage.sync.set(settings);
+          const data = JSON.parse(text);
+
+          // Handle new format (with settings object) or old format
+          if (data.settings) {
+            // New format
+            const toSave = { ...data.settings };
+            if (data.customCommands) toSave.customCommands = data.customCommands;
+            if (data.deletedCommands) toSave.deletedCommands = data.deletedCommands;
+            if (data.commandsOrder) toSave.commandsOrder = data.commandsOrder;
+            await browser.storage.sync.set(toSave);
+          } else {
+            // Old format - direct settings
+            await browser.storage.sync.set(data);
+          }
+
           this.loadSettings();
           this.renderCommands();
           alert('Settings imported successfully!');
