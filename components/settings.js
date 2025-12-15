@@ -826,18 +826,22 @@ class SettingsPanel extends HTMLElement {
     const { deletedCommands = [], customCommands = {}, commandsOrder = [] } =
       await browser.storage.sync.get(['deletedCommands', 'customCommands', 'commandsOrder']);
 
-    // Combine built-in (non-deleted) and custom commands
-    const allCommands = [];
+    // Combine built-in (non-deleted) and custom commands.
+    // Use a Map so custom commands with the same key override built-ins,
+    // matching the behavior of the grid component and avoiding duplicates.
+    const allCommandsMap = new Map();
 
     for (const [key, cmd] of COMMANDS) {
       if (!deletedCommands.includes(key)) {
-        allCommands.push({ key, ...cmd, isBuiltin: true });
+        allCommandsMap.set(key, { key, ...cmd, isBuiltin: true });
       }
     }
 
     for (const [key, cmd] of Object.entries(customCommands)) {
-      allCommands.push({ key, ...cmd, isBuiltin: false });
+      allCommandsMap.set(key, { key, ...cmd, isBuiltin: false });
     }
+
+    let allCommands = Array.from(allCommandsMap.values());
 
     // Sort by saved order (if exists), otherwise keep as-is
     if (commandsOrder.length > 0) {
