@@ -71,6 +71,7 @@ commandTemplate.innerHTML = `
 class Commands extends HTMLElement {
   #commands = new Map();
   #columns = 'auto';
+  #openInNewTab = CONFIG.defaultSettings.newTab;
 
   constructor() {
     super();
@@ -80,22 +81,34 @@ class Commands extends HTMLElement {
   }
 
   async loadCommands() {
+    // Load global settings that affect commands behavior
+    const {
+      deletedCommands = [],
+      customCommands = {},
+      commandsColumns = 4,
+      commandsOrder = [],
+      newTab = CONFIG.defaultSettings.newTab
+    } = await browser.storage.sync.get([
+      'deletedCommands',
+      'customCommands',
+      'commandsColumns',
+      'commandsOrder',
+      'newTab'
+    ]);
+
+    // Apply "open in new tab" setting for commands grid
+    this.#openInNewTab = Boolean(newTab);
+
     // Start with built-in commands
-    // Load deleted commands state
-    const { deletedCommands = [] } = await browser.storage.sync.get('deletedCommands');
     this.#commands = new Map(
       Array.from(COMMANDS).filter(([key]) => !deletedCommands.includes(key))
     );
 
     // Add custom commands
-    const { customCommands = {} } = await browser.storage.sync.get('customCommands');
     for (const [key, command] of Object.entries(customCommands)) {
       this.#commands.set(key, command);
     }
 
-    // Load columns setting and order
-    const { commandsColumns = 4, commandsOrder = [] } =
-      await browser.storage.sync.get(['commandsColumns', 'commandsOrder']);
     this.#columns = commandsColumns;
 
     // Apply order if exists
@@ -131,7 +144,7 @@ class Commands extends HTMLElement {
       const clone = commandTemplate.content.cloneNode(true);
       const command = clone.querySelector('.command');
       command.href = url;
-      if (CONFIG.openLinksInNewTab) command.target = '_blank';
+      if (this.#openInNewTab) command.target = '_blank';
       clone.querySelector('.key').innerText = key;
       clone.querySelector('.name').innerText = name;
 

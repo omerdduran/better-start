@@ -127,6 +127,7 @@ class Search extends HTMLElement {
   #input;
   #suggestions;
   #searchEngine;
+  #openInNewTab = CONFIG.defaultSettings.newTab;
 
   constructor() {
     super();
@@ -140,23 +141,32 @@ class Search extends HTMLElement {
     this.#input.addEventListener('input', this.#onInput);
     this.#suggestions.addEventListener('click', this.#onSuggestionClick);
     document.addEventListener('keydown', this.#onKeydown);
-    this.loadSearchEngine();
+    this.loadSearchEngineAndSettings();
     this.shadowRoot.append(clone);
     browser.storage.onChanged.addListener(this.#onStorageChange);
   }
 
-  async loadSearchEngine() {
+  async loadSearchEngineAndSettings() {
     const {
       defaultSearch = 'duckduckgo',
       customSearchEngines = {},
-      customCommands = {}
-    } = await browser.storage.sync.get(['defaultSearch', 'customSearchEngines', 'customCommands']);
+      customCommands = {},
+      newTab = CONFIG.defaultSettings.newTab
+    } = await browser.storage.sync.get([
+      'defaultSearch',
+      'customSearchEngines',
+      'customCommands',
+      'newTab'
+    ]);
 
     if (customSearchEngines[defaultSearch]) {
       this.#searchEngine = customSearchEngines[defaultSearch];
     } else {
       this.#searchEngine = CONFIG.searchEngines[defaultSearch];
     }
+
+    // Apply "open in new tab" setting for search
+    this.#openInNewTab = Boolean(newTab);
 
     for (const [key, command] of Object.entries(customCommands)) {
       COMMANDS.set(key, command);
@@ -248,7 +258,7 @@ class Search extends HTMLElement {
   }
 
   #execute(query) {
-    const target = CONFIG.openLinksInNewTab ? '_blank' : '_self';
+    const target = this.#openInNewTab ? '_blank' : '_self';
     window.open(this.#parseQuery(query).url, target, 'noopener noreferrer');
     this.#saveToHistory(query);
     this.#close();
@@ -381,8 +391,13 @@ class Search extends HTMLElement {
   }
 
   #onStorageChange = (changes) => {
-    if (changes.defaultSearch || changes.customSearchEngines || changes.customCommands) {
-      this.loadSearchEngine();
+    if (
+      changes.defaultSearch ||
+      changes.customSearchEngines ||
+      changes.customCommands ||
+      changes.newTab
+    ) {
+      this.loadSearchEngineAndSettings();
     }
   };
 }
