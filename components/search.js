@@ -227,29 +227,6 @@ class Search extends HTMLElement {
     return { query, search: query, url };
   }
 
-  async fetchSuggestions(search) {
-    const engine = this.#searchEngine || CONFIG.searchEngines.duckduckgo;
-    try {
-      const { searchHistory = [] } = await browser.storage.sync.get('searchHistory');
-      return searchHistory
-        .filter(item => item.toLowerCase().includes(search.toLowerCase()))
-        .filter(item => item.toLowerCase() !== search.toLowerCase())
-        .slice(0, CONFIG.suggestionLimit);
-    } catch (error) {
-      console.error('Failed to fetch suggestions:', error);
-      return [];
-    }
-  }
-
-  async #saveToHistory(query) {
-    const { searchHistory = [] } = await browser.storage.sync.get('searchHistory');
-    const newHistory = [
-      query,
-      ...searchHistory.filter(q => q !== query)
-    ].slice(0, CONFIG.defaultSettings.searchHistoryLimit);
-    await browser.storage.sync.set({ searchHistory: newHistory });
-  }
-
   #close() {
     this.#input.value = '';
     this.#input.blur();
@@ -260,7 +237,6 @@ class Search extends HTMLElement {
   #execute(query) {
     const target = this.#openInNewTab ? '_blank' : '_self';
     window.open(this.#parseQuery(query).url, target, 'noopener noreferrer');
-    this.#saveToHistory(query);
     this.#close();
   }
 
@@ -288,16 +264,7 @@ class Search extends HTMLElement {
       return;
     }
 
-    let suggestions = COMMANDS.get(oq.query)?.suggestions ?? [];
-
-    if (oq.search && suggestions.length < CONFIG.suggestionLimit) {
-      const res = await this.fetchSuggestions(oq.search);
-      suggestions = suggestions.concat(
-        oq.splitBy
-          ? res.map((search) => `${oq.key}${oq.splitBy}${search}`)
-          : res
-      );
-    }
+    const suggestions = COMMANDS.get(oq.query)?.suggestions ?? [];
 
     const nq = this.#parseQuery(this.#input.value);
     if (nq.query !== oq.query) return;

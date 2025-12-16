@@ -7,43 +7,35 @@ const CONFIG = {
   searchEngines: {
     duckduckgo: {
       name: 'DuckDuckGo',
-      template: 'https://duckduckgo.com/?q={}',
-      suggestionUrl: 'https://duckduckgo.com/ac/?type=list&q={}'
+      template: 'https://duckduckgo.com/?q={}'
     },
     google: {
       name: 'Google',
-      template: 'https://www.google.com/search?q={}',
-      suggestionUrl: 'https://suggestqueries.google.com/complete/search?client=firefox&q={}'
+      template: 'https://www.google.com/search?q={}'
     },
     bing: {
       name: 'Bing',
-      template: 'https://www.bing.com/search?q={}',
-      suggestionUrl: 'https://api.bing.com/qsonhs.aspx?type=cb&q={}'
+      template: 'https://www.bing.com/search?q={}'
     },
     yahoo: {
       name: 'Yahoo',
-      template: 'https://search.yahoo.com/search?p={}',
-      suggestionUrl: null
+      template: 'https://search.yahoo.com/search?p={}'
     },
     brave: {
       name: 'Brave',
-      template: 'https://search.brave.com/search?q={}',
-      suggestionUrl: null
+      template: 'https://search.brave.com/search?q={}'
     },
     ecosia: {
       name: 'Ecosia',
-      template: 'https://www.ecosia.org/search?q={}',
-      suggestionUrl: null
+      template: 'https://www.ecosia.org/search?q={}'
     },
     startpage: {
       name: 'Startpage',
-      template: 'https://www.startpage.com/do/search?q={}',
-      suggestionUrl: null
+      template: 'https://www.startpage.com/do/search?q={}'
     },
     yandex: {
       name: 'Yandex',
-      template: 'https://yandex.com/search/?text={}',
-      suggestionUrl: null
+      template: 'https://yandex.com/search/?text={}'
     }
   },
   defaultSettings: {
