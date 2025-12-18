@@ -2,10 +2,13 @@
 
 A minimal, keyboard-focused new tab extension for **Chrome** and **Firefox** with a command grid, smart search, clock, weather, and elegant customization options.
 
-![Version](https://img.shields.io/badge/version-1.1.0-blue.svg)
+![Version](https://img.shields.io/badge/version-1.2.0-blue.svg)
 ![License](https://img.shields.io/badge/license-MIT-green.svg)
 ![Chrome](https://img.shields.io/badge/Chrome-MV3-yellow.svg)
 ![Firefox](https://img.shields.io/badge/Firefox-MV2-orange.svg)
+
+- [Install on Chrome Web Store](https://chromewebstore.google.com/detail/ilnagcflpnafjkihcdeeeendjpoghlab?utm_source=item-share-cb)
+- [Install on Firefox Add-ons](https://addons.mozilla.org/en-US/firefox/addon/better-start/)
 
 ## ✨ Features
 
@@ -50,6 +53,14 @@ A minimal, keyboard-focused new tab extension for **Chrome** and **Firefox** wit
 - Configurable grid columns
 - Import/Export all settings as JSON
 - Reset to defaults
+
+## 🖼️ Screenshots
+
+![Better Start – Command grid and widgets](images/Screenshot%202025-12-18%20at%2023.02.43.png)
+
+![Better Start – Search and commands](images/Screenshot%202025-12-18%20at%2023.02.56.png)
+
+![Better Start – Settings panel](images/Screenshot%202025-12-18%20at%2023.03.16.png)
 
 ## 📦 Installation
 
@@ -220,6 +231,15 @@ All settings are stored via `browser.storage.sync`:
 | New tab override | ✅ | ✅ |
 | All widgets | ✅ | ✅ |
 | Themes | ✅ | ✅ |
+
+## 🔐 Permissions
+
+This extension requires the following permissions:
+
+| Permission | Justification |
+|-----------|---------------|
+| **storage** | Saves user preferences, custom commands, theme settings, and widget configurations. All data is stored locally in the browser's sync storage. |
+| **tabs** | Required for the "Focus page instead of address bar" feature. When enabled, the extension creates a new tab with the startpage and removes the temporary redirect tab to ensure focus is set on the page content rather than the address bar. This provides a better keyboard-focused user experience. The extension does not access, read, or modify any tab content or browsing history. |
 
 ## 🔌 External APIs
 
