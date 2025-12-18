@@ -16,10 +16,11 @@ mkdir -p "$CHROME_DIR" "$FIREFOX_DIR"
 # Files to include in both builds
 FILES=(
   "index.html"
+  "newtab.html"
+  "newtab.js"
   "styles.css"
   "config.js"
   "app.js"
-  "background.js"
   "browser-polyfill.js"
   "components"
   "icons"

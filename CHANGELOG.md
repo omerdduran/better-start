@@ -1,5 +1,13 @@
 # Changelog
 
+## 1.2.0 - 2025-12-18
+
+- Feature: Focus is now automatically set to the page content instead of the browser's address bar when opening a new tab. This works on both Chrome and Firefox.
+- Feature: New "Focus page instead of address bar" toggle in Settings > Search section to enable/disable focus stealing.
+- Added: New `newtab.html` and `newtab.js` files that handle the focus redirect technique.
+- Added: `tabs` API support in browser polyfill for Chrome compatibility.
+- Changed: New tab override now uses a two-step redirect to steal focus from the address bar.
+
 ## 1.1.1 - 2025-12-16
 
 - Chore: Removed unused background scripts and the Firefox manifest background configuration to simplify the extension.

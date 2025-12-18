@@ -166,6 +166,14 @@ class SettingsPanel extends HTMLElement {
               <span class="toggle-slider"></span>
             </label>
           </div>
+
+          <div class="option">
+            <span class="option-label">Focus page instead of address bar</span>
+            <label class="toggle">
+              <input type="checkbox" id="focusPage">
+              <span class="toggle-slider"></span>
+            </label>
+          </div>
         </div>
 
         <!-- Links Section -->
@@ -437,6 +445,7 @@ class SettingsPanel extends HTMLElement {
       theme: CONFIG.defaultSettings.theme,
       defaultSearch: CONFIG.defaultSettings.defaultSearch,
       newTab: CONFIG.defaultSettings.newTab,
+      focusPage: CONFIG.defaultSettings.focusPage,
       pageTitle: CONFIG.defaultSettings.pageTitle,
       settingsIconHoverOnly: CONFIG.defaultSettings.settingsIconHoverOnly,
       weatherEnabled: CONFIG.defaultSettings.weatherEnabled,
@@ -461,6 +470,7 @@ class SettingsPanel extends HTMLElement {
       theme: this.shadowRoot.getElementById('theme'),
       defaultSearch: this.shadowRoot.getElementById('defaultSearch'),
       newTab: this.shadowRoot.getElementById('newTab'),
+      focusPage: this.shadowRoot.getElementById('focusPage'),
       pageTitle: this.shadowRoot.getElementById('pageTitle'),
       settingsIconHoverOnly: this.shadowRoot.getElementById('settingsIconHoverOnly'),
       weatherEnabled: this.shadowRoot.getElementById('weatherEnabled'),
@@ -507,6 +517,7 @@ class SettingsPanel extends HTMLElement {
       theme: this.shadowRoot.getElementById('theme'),
       defaultSearch: this.shadowRoot.getElementById('defaultSearch'),
       newTab: this.shadowRoot.getElementById('newTab'),
+      focusPage: this.shadowRoot.getElementById('focusPage'),
       pageTitle: this.shadowRoot.getElementById('pageTitle'),
       settingsIconHoverOnly: this.shadowRoot.getElementById('settingsIconHoverOnly'),
       weatherEnabled: this.shadowRoot.getElementById('weatherEnabled'),

@@ -179,8 +179,59 @@ if (typeof browser === 'undefined') {
             },
             getURL: (path) => chrome.runtime.getURL(path),
             lastError: chrome.runtime.lastError
+        },
+        tabs: {
+            getCurrent: () => new Promise((resolve, reject) => {
+                chrome.tabs.getCurrent((tab) => {
+                    if (chrome.runtime.lastError) {
+                        reject(chrome.runtime.lastError);
+                    } else {
+                        resolve(tab);
+                    }
+                });
+            }),
+            create: (createProperties) => new Promise((resolve, reject) => {
+                chrome.tabs.create(createProperties, (tab) => {
+                    if (chrome.runtime.lastError) {
+                        reject(chrome.runtime.lastError);
+                    } else {
+                        resolve(tab);
+                    }
+                });
+            }),
+            remove: (tabIds) => new Promise((resolve, reject) => {
+                chrome.tabs.remove(tabIds, () => {
+                    if (chrome.runtime.lastError) {
+                        reject(chrome.runtime.lastError);
+                    } else {
+                        resolve();
+                    }
+                });
+            }),
+            update: (tabId, updateProperties) => new Promise((resolve, reject) => {
+                chrome.tabs.update(tabId, updateProperties, (tab) => {
+                    if (chrome.runtime.lastError) {
+                        reject(chrome.runtime.lastError);
+                    } else {
+                        resolve(tab);
+                    }
+                });
+            })
+        },
+        history: {
+            deleteUrl: (details) => new Promise((resolve, reject) => {
+                if (chrome.history) {
+                    chrome.history.deleteUrl(details, () => {
+                        if (chrome.runtime.lastError) {
+                            reject(chrome.runtime.lastError);
+                        } else {
+                            resolve();
+                        }
+                    });
+                } else {
+                    resolve();
+                }
+            })
         }
     };
 }
-
-// (BrowserInfo helper and favicon utilities removed; no longer used)

@@ -42,6 +42,7 @@ const CONFIG = {
     theme: 'system',
     defaultSearch: 'duckduckgo',
     newTab: true,
+    focusPage: true,
     pageTitle: 'Better Start',
     settingsIconHoverOnly: false,
     weatherEnabled: true,
