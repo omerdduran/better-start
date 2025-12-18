@@ -1,7 +1,7 @@
 {
   "manifest_version": 2,
   "name": "Better Start",
-  "version": "1.2.0",
+  "version": "1.2.1",
   "description": "Better Start – A minimal, keyboard-focused new tab with command grid, smart search, clock, weather, and light customization.",
   "author": "Ömer Duran",
   "chrome_url_overrides": {

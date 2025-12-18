@@ -906,7 +906,7 @@ class SettingsPanel extends HTMLElement {
       hiddenToggle.textContent = `${isOpen ? 'Hide' : 'Show'} hidden commands (${hiddenCommands.length})`;
     }
 
-    // Drag and drop handlers
+    // Drag and drop handlers (visible commands only)
     let draggedItem = null;
 
     list.querySelectorAll('.command-item').forEach(item => {
@@ -957,70 +957,76 @@ class SettingsPanel extends HTMLElement {
       });
     });
 
-    // Edit button handlers
-    list.querySelectorAll('.edit-btn').forEach(btn => {
-      btn.addEventListener('click', async () => {
-        const item = btn.closest('.command-item');
-        const key = item.dataset.key;
-        const isBuiltin = item.dataset.builtin === 'true';
+    const attachEditAndDeleteHandlers = (container) => {
+      // Edit button handlers
+      container.querySelectorAll('.edit-btn').forEach(btn => {
+        btn.addEventListener('click', async () => {
+          const item = btn.closest('.command-item');
+          const key = item.dataset.key;
+          const isBuiltin = item.dataset.builtin === 'true';
 
-        // Store original command data for cancel
-        this.#editingCommand = {
-          key,
-          isBuiltin,
-          name: item.dataset.name,
-          url: item.dataset.url,
-          searchTemplate: item.dataset.template,
-          suggestions: item.dataset.suggestions ? item.dataset.suggestions.split(',') : []
-        };
+          // Store original command data for cancel
+          this.#editingCommand = {
+            key,
+            isBuiltin,
+            name: item.dataset.name,
+            url: item.dataset.url,
+            searchTemplate: item.dataset.template,
+            suggestions: item.dataset.suggestions ? item.dataset.suggestions.split(',') : []
+          };
 
-        // Show cancel button
-        this.shadowRoot.getElementById('cancelEdit').classList.add('visible');
+          // Show cancel button
+          this.shadowRoot.getElementById('cancelEdit').classList.add('visible');
 
-        // Populate form with existing values
-        const keyInput = this.shadowRoot.getElementById('commandKey');
-        keyInput.value = key;
-        this.shadowRoot.getElementById('commandName').value = item.dataset.name;
-        this.shadowRoot.getElementById('commandUrl').value = item.dataset.url;
-        this.shadowRoot.getElementById('commandSearchTemplate').value = item.dataset.template;
-        this.shadowRoot.getElementById('commandSuggestions').value = item.dataset.suggestions;
+          // Populate form with existing values
+          const keyInput = this.shadowRoot.getElementById('commandKey');
+          keyInput.value = key;
+          this.shadowRoot.getElementById('commandName').value = item.dataset.name;
+          this.shadowRoot.getElementById('commandUrl').value = item.dataset.url;
+          this.shadowRoot.getElementById('commandSearchTemplate').value = item.dataset.template;
+          this.shadowRoot.getElementById('commandSuggestions').value = item.dataset.suggestions;
 
-        // Scroll to form and focus
-        const form = this.shadowRoot.getElementById('addCommandForm');
-        form.scrollIntoView({ behavior: 'smooth', block: 'center' });
-        keyInput.focus();
+          // Scroll to form and focus
+          const form = this.shadowRoot.getElementById('addCommandForm');
+          form.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          keyInput.focus();
 
-        // If editing, delete the old entry first (will be re-added on submit)
-        if (isBuiltin) {
-          const { deletedCommands = [] } = await browser.storage.sync.get('deletedCommands');
-          await browser.storage.sync.set({ deletedCommands: [...deletedCommands, key] });
-        } else {
-          const { customCommands = {} } = await browser.storage.sync.get('customCommands');
-          delete customCommands[key];
-          await browser.storage.sync.set({ customCommands });
-        }
-        this.renderCommands();
+          // If editing, delete the old entry first (will be re-added on submit)
+          if (isBuiltin) {
+            const { deletedCommands = [] } = await browser.storage.sync.get('deletedCommands');
+            await browser.storage.sync.set({ deletedCommands: [...deletedCommands, key] });
+          } else {
+            const { customCommands = {} } = await browser.storage.sync.get('customCommands');
+            delete customCommands[key];
+            await browser.storage.sync.set({ customCommands });
+          }
+          this.renderCommands();
+        });
       });
-    });
 
-    // Delete button handlers
-    list.querySelectorAll('.delete-btn').forEach(btn => {
-      btn.addEventListener('click', async () => {
-        const item = btn.closest('.command-item');
-        const key = item.dataset.key;
-        const isBuiltin = item.dataset.builtin === 'true';
+      // Delete button handlers
+      container.querySelectorAll('.delete-btn').forEach(btn => {
+        btn.addEventListener('click', async () => {
+          const item = btn.closest('.command-item');
+          const key = item.dataset.key;
+          const isBuiltin = item.dataset.builtin === 'true';
 
-        if (isBuiltin) {
-          const { deletedCommands = [] } = await browser.storage.sync.get('deletedCommands');
-          await browser.storage.sync.set({ deletedCommands: [...deletedCommands, key] });
-        } else {
-          const { customCommands = {} } = await browser.storage.sync.get('customCommands');
-          delete customCommands[key];
-          await browser.storage.sync.set({ customCommands });
-        }
-        this.renderCommands();
+          if (isBuiltin) {
+            const { deletedCommands = [] } = await browser.storage.sync.get('deletedCommands');
+            await browser.storage.sync.set({ deletedCommands: [...deletedCommands, key] });
+          } else {
+            const { customCommands = {} } = await browser.storage.sync.get('customCommands');
+            delete customCommands[key];
+            await browser.storage.sync.set({ customCommands });
+          }
+          this.renderCommands();
+        });
       });
-    });
+    };
+
+    // Attach handlers for both visible and hidden command lists
+    attachEditAndDeleteHandlers(list);
+    attachEditAndDeleteHandlers(hiddenList);
   }
 
   toggle() {

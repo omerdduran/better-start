@@ -2,7 +2,7 @@
 
 A minimal, keyboard-focused new tab extension for **Chrome** and **Firefox** with a command grid, smart search, clock, weather, and elegant customization options.
 
-![Version](https://img.shields.io/badge/version-1.2.0-blue.svg)
+![Version](https://img.shields.io/badge/version-1.2.1-blue.svg)
 ![License](https://img.shields.io/badge/license-MIT-green.svg)
 ![Chrome](https://img.shields.io/badge/Chrome-MV3-yellow.svg)
 ![Firefox](https://img.shields.io/badge/Firefox-MV2-orange.svg)

@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.2.1 - 2025-12-18
+
+- Fix: Hidden commands in **Settings > Links** can now be edited and deleted correctly, just like visible commands.
+- Fix: Hidden commands list now properly wires up edit/delete handlers alongside the main commands list.
+
 ## 1.2.0 - 2025-12-18
 
 - Feature: Focus is now automatically set to the page content instead of the browser's address bar when opening a new tab. This works on both Chrome and Firefox.
