@@ -244,8 +244,30 @@ class Search extends HTMLElement {
   }
 
   #execute(query) {
-    const target = this.#openInNewTab ? '_blank' : '_self';
-    window.open(this.#parseQuery(query).url, target, 'noopener noreferrer');
+    const { url } = this.#parseQuery(query);
+
+    if (this.#openInNewTab) {
+      // Normal behavior: open in a new browser tab
+      window.open(url, '_blank', 'noopener noreferrer');
+    } else {
+      // When not opening in a new tab, we still want navigation to happen
+      // at the top level. This is important when Better Start is running
+      // inside an iframe (focusPage disabled), otherwise sites like Figma
+      // will refuse to load due to X-Frame-Options.
+      const isFramed = window.top !== window.self;
+
+      try {
+        if (isFramed) {
+          window.top.location.href = url;
+        } else {
+          window.location.href = url;
+        }
+      } catch (e) {
+        // Fallback in case of any unexpected restriction
+        window.location.href = url;
+      }
+    }
+
     this.#close();
   }
 

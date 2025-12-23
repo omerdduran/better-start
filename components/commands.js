@@ -139,6 +139,11 @@ class Commands extends HTMLElement {
     // Apply columns setting
     commands.style.columns = this.#columns;
 
+    // Ensure clicks behave correctly when Better Start is running inside an iframe
+    // (focusPage disabled). In that case, we want same-tab navigations to break
+    // out of the iframe and load in the top-level tab.
+    commands.addEventListener('click', this.#onCommandClick);
+
     for (const [key, { name, url }] of this.#commands.entries()) {
       if (!name || !url) continue;
       const clone = commandTemplate.content.cloneNode(true);
@@ -154,6 +159,21 @@ class Commands extends HTMLElement {
     this.shadowRoot.innerHTML = '';
     this.shadowRoot.append(clone);
   }
+
+  #onCommandClick = (e) => {
+    const link = e.target.closest('.command');
+    if (!link) return;
+
+    // Only override behavior when "open in new tab" is disabled
+    if (!this.#openInNewTab && window.top !== window.self) {
+      e.preventDefault();
+      try {
+        window.top.location.href = link.href;
+      } catch (err) {
+        window.location.href = link.href;
+      }
+    }
+  };
 
   #onStorageChange = (changes) => {
     if (changes.customCommands || changes.deletedCommands || changes.commandsColumns || changes.commandsOrder) {
