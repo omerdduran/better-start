@@ -3,6 +3,7 @@
 ## 1.2.2 - 2025-12-22
 
 - Fix: The `0` localhost shortcut now correctly opens `https://localhost:PORT` (e.g. `0 3000` → `https://localhost:3000`), instead of inserting an extra slash.
+- Fix: Firefox Multi-Account Containers new tab shortcuts (e.g. **Shift+Cmd+1**) now preserve the selected container when Better Start focuses the page.
 
 ## 1.2.1 - 2025-12-18
 

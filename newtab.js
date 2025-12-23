@@ -68,6 +68,13 @@ const loadInIframe = () => {
     const tabId = tab.id;
     const createOptions = { url: TARGET_PAGE };
 
+    // Preserve container / context if available (Firefox Multi-Account Containers, etc.)
+    // This ensures shortcuts like "Open a new container tab" keep their container
+    // when our focus-stealing logic creates the replacement tab.
+    if (tab.cookieStoreId) {
+      createOptions.cookieStoreId = tab.cookieStoreId;
+    }
+
     // Key technique: Create a NEW tab (gives focus to page), then remove old tab
     await callApi(browser.tabs.create.bind(browser.tabs), createOptions);
     await callApi(browser.tabs.remove.bind(browser.tabs), tabId);
