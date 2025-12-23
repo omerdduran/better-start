@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.2.2 - 2025-12-22
+
+- Fix: The `0` localhost shortcut now correctly opens `https://localhost:PORT` (e.g. `0 3000` → `https://localhost:3000`), instead of inserting an extra slash.
+
 ## 1.2.1 - 2025-12-18
 
 - Fix: Hidden commands in **Settings > Links** can now be edited and deleted correctly, just like visible commands.

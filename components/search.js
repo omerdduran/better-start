@@ -207,8 +207,17 @@ class Search extends HTMLElement {
 
     if (COMMANDS.has(searchKey)) {
       const command = COMMANDS.get(searchKey);
+      const search = (rawSearch || '').trim();
+
+      // Special handling for localhost port shortcut:
+      // "0 3000" → "https://localhost:3000"
+      if (searchKey === '0') {
+        const base = new URL(command.url);
+        const url = search ? `${base.origin}:${search}` : base.href;
+        return { key: searchKey, query, search, splitBy, url };
+      }
+
       const template = new URL(command.searchTemplate ?? '', command.url);
-      const search = rawSearch.trim();
       const url = this.#formatSearchUrl(decodeURI(template.href), search);
       return { key: searchKey, query, search, splitBy, url };
     }
