@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.2.3 - 2025-12-25
+
+- Fix: Improved Firefox focus reliability when toggling **Focus page instead of address bar**; if creating a new container tab fails, Better Start now falls back to a normal tab so the focus-stealing behavior continues to work.
+
 ## 1.2.2 - 2025-12-22
 
 - Fix: The `0` localhost shortcut now correctly opens `https://localhost:PORT` (e.g. `0 3000` → `https://localhost:3000`), instead of inserting an extra slash.

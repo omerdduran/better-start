@@ -75,8 +75,16 @@ const loadInIframe = () => {
       createOptions.cookieStoreId = tab.cookieStoreId;
     }
 
-    // Key technique: Create a NEW tab (gives focus to page), then remove old tab
-    await callApi(browser.tabs.create.bind(browser.tabs), createOptions);
+    // Key technique: Create a NEW tab (gives focus to page), then remove old tab.
+    // Some Firefox setups/extensions may not allow specifying cookieStoreId without
+    // additional permissions. If the first attempt fails, retry without the
+    // container to keep the focus behavior working.
+    try {
+      await callApi(browser.tabs.create.bind(browser.tabs), createOptions);
+    } catch (e) {
+      console.warn('Better Start: tabs.create with cookieStoreId failed, retrying without container.', e);
+      await callApi(browser.tabs.create.bind(browser.tabs), { url: TARGET_PAGE });
+    }
     await callApi(browser.tabs.remove.bind(browser.tabs), tabId);
 
     // Clean up history
