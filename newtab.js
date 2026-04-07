@@ -1,9 +1,14 @@
 /**
  * New Tab Focus Handler
- * 
+ *
  * Based on newtaboverride's technique for stealing focus from address bar.
  * Creates a new tab and removes the old one to get focus on page content.
  * This behavior can be toggled via the "Focus page instead of address bar" setting.
+ *
+ * Container tabs (Firefox Multi-Account Containers): focus-stealing is skipped
+ * because tabs.create with a foreign cookieStoreId requires permissions that
+ * are not reliably granted. Instead, the page loads in an iframe so the
+ * container context is preserved.
  */
 
 'use strict';
@@ -22,7 +27,7 @@ const callApi = (apiMethod, ...args) => {
           resolve(response);
         }
       });
-      
+
       // If it returns a Promise (Firefox), use that instead
       if (result && typeof result.then === 'function') {
         result.then(resolve).catch(reject);
@@ -39,7 +44,7 @@ const loadInIframe = () => {
   iframe.src = TARGET_PAGE;
   iframe.setAttribute('allowfullscreen', 'true');
   document.body.appendChild(iframe);
-  
+
   // Pass focus to iframe content when it loads
   iframe.addEventListener('load', () => {
     iframe.contentWindow.focus();
@@ -50,7 +55,7 @@ const loadInIframe = () => {
   try {
     // Check if focus stealing is enabled
     const { focusPage = true } = await browser.storage.sync.get({ focusPage: true });
-    
+
     // If disabled, load in iframe to keep URL clean
     if (!focusPage) {
       loadInIframe();
@@ -65,26 +70,21 @@ const loadInIframe = () => {
       return;
     }
 
-    const tabId = tab.id;
-    const createOptions = { url: TARGET_PAGE };
+    // If this is a container tab, skip focus-stealing and use iframe instead.
+    // Firefox doesn't reliably allow tabs.create with another extension's
+    // cookieStoreId, so the focus-steal would either lose the container or fail.
+    const isContainerTab = tab.cookieStoreId
+      && tab.cookieStoreId !== 'firefox-default';
 
-    // Preserve container / context if available (Firefox Multi-Account Containers, etc.)
-    // This ensures shortcuts like "Open a new container tab" keep their container
-    // when our focus-stealing logic creates the replacement tab.
-    if (tab.cookieStoreId) {
-      createOptions.cookieStoreId = tab.cookieStoreId;
+    if (isContainerTab) {
+      loadInIframe();
+      return;
     }
+
+    const tabId = tab.id;
 
     // Key technique: Create a NEW tab (gives focus to page), then remove old tab.
-    // Some Firefox setups/extensions may not allow specifying cookieStoreId without
-    // additional permissions. If the first attempt fails, retry without the
-    // container to keep the focus behavior working.
-    try {
-      await callApi(browser.tabs.create.bind(browser.tabs), createOptions);
-    } catch (e) {
-      console.warn('Better Start: tabs.create with cookieStoreId failed, retrying without container.', e);
-      await callApi(browser.tabs.create.bind(browser.tabs), { url: TARGET_PAGE });
-    }
+    await callApi(browser.tabs.create.bind(browser.tabs), { url: TARGET_PAGE });
     await callApi(browser.tabs.remove.bind(browser.tabs), tabId);
 
     // Clean up history
