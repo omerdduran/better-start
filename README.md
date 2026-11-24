@@ -265,7 +265,7 @@ This extension requires the following permissions:
 
 ## 📄 License
 
-MIT License — feel free to use and modify as you wish!
+MIT License — see [LICENSE](LICENSE). Feel free to use and modify as you wish!
 
 
 <p align="center">
